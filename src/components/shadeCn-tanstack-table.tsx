@@ -23,9 +23,7 @@ import {
 import {
   Pagination,
   PaginationContent,
-  PaginationEllipsis,
   PaginationItem,
-  PaginationLink,
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
@@ -41,6 +39,7 @@ import {
   SelectValue,
 } from "./ui/select";
 import { shiftData } from "@/dataBase/shift-management/shift";
+import { statusColors } from "@/dataBase/constants/status-colors";
 
 type Shift = {
   id: string;
@@ -123,13 +122,27 @@ export default function ShadeCnTanstackTable() {
 
       columnHelper.accessor("level", {
         header: "Level",
-        cell: ({ getValue }) => getValue(),
+        cell: ({ getValue }) => (
+          <span className="px-2 py-1 bg-gray-100 text-gray-800  rounded-sm">
+            {getValue()}
+          </span>
+        ),
         filterFn: "includesString",
       }),
 
       columnHelper.accessor("status", {
         header: "Status",
-        cell: ({ getValue }) => getValue(),
+        cell: ({ getValue }) => {
+          const value = getValue();
+          const colors = statusColors[value];
+          return (
+            <span
+              className={`px-2 py-1 rounded-sm font-semibold ${colors.bg} ${colors.text}`}
+            >
+              {value}
+            </span>
+          );
+        },
         filterFn: "includesString",
       }),
 
@@ -311,11 +324,11 @@ export default function ShadeCnTanstackTable() {
 
       <div className="overflow-hidden">
         <Table className="w-full table-fixed">
-          <TableHeader className="h-12 bg-[#F4F6F8] shadow-sm">
+          <TableHeader className="h-12 font-bold bg-[#F4F6F8] shadow-sm">
             {table.getHeaderGroups().map((headergroup) => (
               <TableRow key={headergroup.id}>
                 {headergroup.headers.map((header) => (
-                  <TableHead key={header.id} className="text-left px-4">
+                  <TableHead key={header.id} className="px-4 font-semibold">
                     {flexRender(
                       header.column.columnDef.header,
                       header.getContext(),
@@ -328,7 +341,7 @@ export default function ShadeCnTanstackTable() {
 
           <TableBody className="">
             {table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id} className="">
+              <TableRow key={row.id}>
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id} className="px-4 py-2">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}

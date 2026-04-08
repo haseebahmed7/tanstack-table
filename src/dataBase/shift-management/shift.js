@@ -16,13 +16,13 @@ export const shiftData = [
       "Emergency",
     ];
     const statuses = [
-      "PENDING",
-      "BOOKED",
-      "WORKED",
-      "CANCELLED",
-      "DECLINE",
-      "NOT ASSIGNED",
-      "NOT ATTENDED",
+      "Pending",
+      "Booked",
+      "Worked",
+      "Cancelled",
+      "Decline",
+      "Not Assigned",
+      "Not Attended",
     ];
     const names = [
       "Ali Khan",
