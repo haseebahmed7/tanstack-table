@@ -134,10 +134,10 @@ export default function ShadeCnTanstackTable() {
         header: "Status",
         cell: ({ getValue }) => {
           const value = getValue();
-          const colors = statusColors[value];
+          const color = statusColors[value];
           return (
             <span
-              className={`px-2 py-1 rounded-sm font-semibold ${colors.bg} ${colors.text}`}
+              className={`px-2 py-1 rounded-sm font-semibold ${color.bg} ${color.text}`}
             >
               {value}
             </span>
@@ -272,15 +272,40 @@ export default function ShadeCnTanstackTable() {
             }
           >
             <SelectTrigger className="w-40">
-              <SelectValue placeholder="Status" />
+              {(() => {
+                const selected = table
+                  .getColumn("status")
+                  ?.getFilterValue() as string;
+
+                if (!selected) {
+                  return <span>Status</span>;
+                }
+
+                const color = statusColors[selected];
+
+                return (
+                  <span
+                    className={`px-2 py-1 rounded-sm font-semibold ${color.bg} ${color.text}`}
+                  >
+                    {selected}
+                  </span>
+                );
+              })()}
             </SelectTrigger>
 
             <SelectContent position="popper">
-              {statuses.map((status) => (
-                <SelectItem key={status} value={status}>
-                  {status}
-                </SelectItem>
-              ))}
+              {statuses.map((status) => {
+                const color = statusColors[status];
+                return (
+                  <SelectItem
+                    key={status}
+                    value={status}
+                    className={`rounded-none ${color.bg} ${color.text}`}
+                  >
+                    {status}
+                  </SelectItem>
+                );
+              })}
             </SelectContent>
           </Select>
 
