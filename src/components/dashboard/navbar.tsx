@@ -1,11 +1,10 @@
-import React from "react";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import Link from "next/link";
 import { LogOut } from "lucide-react";
 
 export default function Navbar() {
   return (
-    <div className="flex justify-between p-2">
+    <div className="flex justify-between mb-10">
       <h2 className="text-xl font-semibold">Logo</h2>
       <h2 className="text-xl font-semibold">Navbar</h2>
       <div>
