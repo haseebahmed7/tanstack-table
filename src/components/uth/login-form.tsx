@@ -33,7 +33,7 @@ export default function LoginForm() {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitted },
+    formState: { errors },
     setError,
   } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -70,7 +70,9 @@ export default function LoginForm() {
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
-              <Label>Email *</Label>
+              <Label>
+                Email <span className="text-red-500">*</span>
+              </Label>
               <Input type="email" {...register("email")} />
               {errors.email && (
                 <p className="text-red-600">{errors.email.message}</p>
@@ -78,7 +80,7 @@ export default function LoginForm() {
             </div>
 
             <div className="space-y-2 relative">
-              <Label>Password *</Label>
+              <Label>Password</Label>
               <Input
                 type={showPassword ? "text" : "password"}
                 {...register("password")}
