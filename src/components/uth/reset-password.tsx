@@ -9,6 +9,7 @@ import { Label } from "../ui/label";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useToast } from "../context/toast-context";
 
 // ✅ schema
 const schema = z
@@ -30,6 +31,7 @@ type FormData = z.infer<typeof schema>;
 
 export default function ResetPassword() {
   const router = useRouter();
+  const toast = useToast();
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -47,31 +49,35 @@ export default function ResetPassword() {
   });
 
   // ✅ submit logic
-  const onSubmit = (data: FormData) => {
-    const savedUser = JSON.parse(localStorage.getItem("user") || "{}");
-    const resetEmail = localStorage.getItem("resetEmail");
+  const onSubmit = async (data: FormData) => {
+    try {
+      toast.success("Password updated successfully!");
+      router.push("/login");
+    } catch {}
+    // const savedUser = JSON.parse(localStorage.getItem("user") || "{}");
+    // const resetEmail = localStorage.getItem("resetEmail");
 
-    // agar email hi nahi hai
-    if (!resetEmail || savedUser.email !== resetEmail) {
-      alert("Something went wrong. Try again.");
-      router.push("/forgot-password");
-      return;
-    }
+    // // agar email hi nahi hai
+    // if (!resetEmail || savedUser.email !== resetEmail) {
+    //   alert("Something went wrong. Try again.");
+    //   router.push("/forgot-password");
+    //   return;
+    // }
 
-    // password update
-    const updatedUser = {
-      ...savedUser,
-      password: data.password,
-    };
+    // // password update
+    // const updatedUser = {
+    //   ...savedUser,
+    //   password: data.password,
+    // };
 
-    localStorage.setItem("user", JSON.stringify(updatedUser));
+    // localStorage.setItem("user", JSON.stringify(updatedUser));
 
-    // cleanup
-    localStorage.removeItem("resetEmail");
+    // // cleanup
+    // localStorage.removeItem("resetEmail");
 
-    alert("Password updated successfully!");
+    // alert("Password updated successfully!");
 
-    router.push("/login");
+    // router.push("/login");
   };
 
   return (

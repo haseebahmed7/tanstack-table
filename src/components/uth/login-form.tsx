@@ -10,6 +10,9 @@ import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import { useToast } from "../context/toast-context";
 
 const schema = z.object({
   email: z
@@ -25,6 +28,7 @@ type FormData = z.infer<typeof schema>;
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
+  const toast = useToast();
 
   const togglePassword = () => {
     setShowPassword((prev) => !prev);
@@ -44,19 +48,13 @@ export default function LoginForm() {
     mode: "onSubmit",
   });
 
-  const onSubmit = (data: FormData) => {
-    const savedUser = JSON.parse(localStorage.getItem("user") || "{}");
-
-    if (
-      data.email === savedUser.email &&
-      data.password === savedUser.password
-    ) {
-      router.push("/dashboard");
-    } else {
-      setError("email", {
-        type: "manual",
-        message: "Invalid email or password",
-      });
+  const onSubmit = async (data: FormData) => {
+    try {
+      await signInWithEmailAndPassword(auth, data.email, data.password);
+      toast.success("Welcome back!");
+      router.push("/shift-management");
+    } catch (error: any) {
+      toast.error("Invalid Credentials.");
     }
   };
 

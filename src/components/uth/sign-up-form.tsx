@@ -10,6 +10,9 @@ import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { useToast } from "../context/toast-context";
+import { auth } from "@/lib/firebase";
 
 const schema = z
   .object({
@@ -37,6 +40,7 @@ type FormData = z.infer<typeof schema>;
 
 export default function SignUpForm() {
   const router = useRouter();
+  const toast = useToast();
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -50,14 +54,26 @@ export default function SignUpForm() {
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
+    defaultValues: {
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
     mode: "onSubmit",
   });
 
-  const onSubmit = (data: FormData) => {
-    localStorage.setItem("user", JSON.stringify(data));
-
-    alert("Signup successful!");
-    router.push("/login");
+  const onSubmit = async (data: FormData) => {
+    try {
+      await createUserWithEmailAndPassword(auth, data.email, data.password);
+      toast.success("Sign Up Successfully!✅");
+      router.push("/login");
+    } catch (error: any) {
+      if (error.code === "auth/email-already-in-use") {
+        toast.error("This email is already registered.");
+      } else {
+        toast.error("Something went wrong. Please try again.");
+      }
+    }
   };
 
   return (
