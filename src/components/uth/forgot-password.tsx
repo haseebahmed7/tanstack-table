@@ -6,10 +6,11 @@ import { Button } from "../ui/button";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Label } from "../ui/label";
-import { useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { auth } from "@/lib/firebase";
+import { sendPasswordResetEmail } from "firebase/auth";
+import { useToast } from "../context/toast-context";
 
 const schema = z.object({
   email: z
@@ -21,12 +22,8 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 export default function ForgotPassword() {
-  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
-
-  const togglePassword = () => {
-    setShowPassword((prev) => !prev);
-  };
+  const toast = useToast();
 
   const {
     register,
@@ -41,22 +38,32 @@ export default function ForgotPassword() {
     mode: "onSubmit",
   });
 
-  const onSubmit = (data: FormData) => {
-    const savedUser = JSON.parse(localStorage.getItem("user") || "{}");
-
-    if (data.email === savedUser.email) {
-      // ✅ email save karo
-      localStorage.setItem("resetEmail", data.email);
-
-      // ✅ phir redirect
-      router.push("/reset-password");
-    } else {
-      setError("email", {
-        type: "manual",
-        message: "Email not found",
-      });
+  const onSubmit = async (data: FormData) => {
+    try {
+      await sendPasswordResetEmail(auth, data.email);
+      toast.success("Check your inbox! Reset link sent.");
+      router.push("/login");
+    } catch (error: any) {
+      toast.error("Something went wrong. Please try again.");
     }
   };
+
+  // const onSubmit = (data: FormData) => {
+  //   const savedUser = JSON.parse(localStorage.getItem("user") || "{}");
+
+  //   if (data.email === savedUser.email) {
+  //     // ✅ email save karo
+  //     localStorage.setItem("resetEmail", data.email);
+
+  //     // ✅ phir redirect
+  //     router.push("/reset-password");
+  //   } else {
+  //     setError("email", {
+  //       type: "manual",
+  //       message: "Email not found",
+  //     });
+  //   }
+  // };
 
   return (
     <div className="grid grid-cols-12 min-h-screen">

@@ -42,6 +42,7 @@ import { statuses, levels, locations } from "@/dataBase/shift-management/shift";
 import { statusColors } from "@/dataBase/statusColors/status-colors";
 import { Shift } from "../types/shift";
 import CreateShiftDialog from "./create-shift-dialog";
+import ViewShiftDialog from "./view-shift-dialog";
 
 export default function ShadeCnTanstackTable() {
   const [globalFilter, setGlobalFilter] = useState("");
@@ -49,10 +50,17 @@ export default function ShadeCnTanstackTable() {
   // Global filter → text input
   // Column filters → Select inputs
 
+  const [selectedShift, setSelectedShift] = useState<Shift | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
+
   const [shifts, setShifts] = useState<Shift[]>(() => {
     if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("shifts");
-      return saved ? JSON.parse(saved) : [];
+      try {
+        const saved = localStorage.getItem("shifts");
+        return saved ? JSON.parse(saved) : [];
+      } catch {
+        return [];
+      }
     }
     return [];
   });
@@ -164,7 +172,9 @@ export default function ShadeCnTanstackTable() {
           return (
             <button
               onClick={() => {
-                console.log("View clicked:", row.original);
+                setSelectedShift(row.original);
+                setIsOpen(true);
+                console.log("View clicked:", setSelectedShift);
               }}
               className="text-blue-500 hover:text-blue-700"
             >
@@ -464,6 +474,12 @@ export default function ShadeCnTanstackTable() {
           </div>
         </div>
       </div>
+
+      <ViewShiftDialog
+        open={isOpen}
+        shift={selectedShift}
+        onOpenChange={setIsOpen}
+      />
     </>
   );
 }
