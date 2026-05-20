@@ -43,36 +43,43 @@ import { statusColors } from "@/dataBase/statusColors/status-colors";
 import { Shift } from "../types/shift";
 import CreateShiftDialog from "./create-shift-dialog";
 import ViewShiftDialog from "./view-shift-dialog";
+import { CustomBreadcrumbs } from "../custom-breadcrums";
 
-export default function ShadeCnTanstackTable() {
+// --- CHANGE 1: Firebase Imports ---
+import { db } from "@/lib/firebase";
+import { collection, getDocs, addDoc } from "firebase/firestore";
+
+export default function ShiftManagement() {
   const [globalFilter, setGlobalFilter] = useState("");
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  // Global filter → text input
-  // Column filters → Select inputs
 
   const [selectedShift, setSelectedShift] = useState<Shift | null>(null);
   const [isOpen, setIsOpen] = useState(false);
 
-  const [shifts, setShifts] = useState<Shift[]>(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const saved = localStorage.getItem("shifts");
-        return saved ? JSON.parse(saved) : [];
-      } catch {
-        return [];
-      }
-    }
-    return [];
-  });
+  // --- CHANGE 2: Removed LocalStorage, initialized with empty array ---
+  const [shifts, setShifts] = useState<Shift[]>([]);
 
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: 10,
   });
 
+  // --- CHANGE 3: Fetching data from Firebase on load ---
   useEffect(() => {
-    localStorage.setItem("shifts", JSON.stringify(shifts));
-  }, [shifts]);
+    const fetchShifts = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "shifts"));
+        const data = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as Shift[];
+        setShifts(data);
+      } catch (error) {
+        console.error("Error fetching shifts: ", error);
+      }
+    };
+    fetchShifts();
+  }, []);
 
   const data: Shift[] = shifts;
   const columnHelper = createColumnHelper<Shift>();
@@ -83,62 +90,49 @@ export default function ShadeCnTanstackTable() {
         header: "Request Id",
         cell: ({ getValue }) => getValue(),
       }),
-
       columnHelper.accessor("shiftType", {
         header: "Shift Type",
         cell: ({ getValue }) => getValue(),
       }),
-
       columnHelper.accessor((row) => row.location?.title ?? "", {
         id: "location",
         header: "Location",
         cell: ({ getValue }) => getValue(),
         filterFn: "includesString",
       }),
-
       columnHelper.accessor("date", {
         header: "Date & Time",
-        cell: ({ row }) => {
-          const date = row.original.date;
-          const start = row.original.startDatetime;
-          const end = row.original.endDatetime;
-
-          return (
+        cell: ({ row }) => (
+          <div>
+            <div>{row.original.date}</div>
             <div>
-              <div>{date}</div>
-              <div>
-                {start} - {end}
-              </div>
+              {row.original.startDatetime} - {row.original.endDatetime}
             </div>
-          );
-        },
+          </div>
+        ),
         filterFn: (row, columnId, value) => {
           if (!value) return true;
-
-          const rowDate = row.original.date;
-
-          const [day, month, year] = rowDate.split("-");
-          const formatted = `${year}-${month}-${day}`;
-
-          return formatted === value;
+          const [day, month, year] = row.original.date.split("-");
+          return `${year}-${month}-${day}` === value;
         },
       }),
-
       columnHelper.accessor("level", {
         header: "Level",
         cell: ({ getValue }) => (
-          <span className="px-2 py-1 bg-gray-100 text-gray-800  rounded-sm">
+          <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded-sm">
             {getValue()}
           </span>
         ),
         filterFn: "includesString",
       }),
-
       columnHelper.accessor("status", {
         header: "Status",
         cell: ({ getValue }) => {
-          const value = getValue();
-          const color = statusColors[value];
+          const value = getValue() || "";
+          const color = statusColors[value] || {
+            bg: "bg-gray-100",
+            text: "text-gray-800",
+          };
           return (
             <span
               className={`px-2 py-1 rounded-sm font-semibold ${color.bg} ${color.text}`}
@@ -149,39 +143,33 @@ export default function ShadeCnTanstackTable() {
         },
         filterFn: "includesString",
       }),
-
       columnHelper.accessor("isAutomated", {
         header: "Process",
         cell: ({ getValue }) =>
           getValue() ? (
             <img src="/automation.svg" alt="automation icon" />
           ) : (
-            <img src="/candidate_selection.svg" alt="Select candidate icon" />
+            <img src="/candidate_selection.svg" alt="candidate icon" />
           ),
       }),
-
       columnHelper.accessor((row) => row.candidate?.fullName, {
         header: "Candidate",
         cell: ({ getValue }) => getValue(),
       }),
-
       columnHelper.display({
         id: "actions",
         header: "Actions",
-        cell: ({ row }) => {
-          return (
-            <button
-              onClick={() => {
-                setSelectedShift(row.original);
-                setIsOpen(true);
-                console.log("View clicked:", setSelectedShift);
-              }}
-              className="text-blue-500 hover:text-blue-700"
-            >
-              <FiEye size={17} />
-            </button>
-          );
-        },
+        cell: ({ row }) => (
+          <button
+            onClick={() => {
+              setSelectedShift(row.original);
+              setIsOpen(true);
+            }}
+            className="text-blue-500 hover:text-blue-700"
+          >
+            <FiEye size={17} />
+          </button>
+        ),
       }),
     ],
     [],
@@ -190,12 +178,7 @@ export default function ShadeCnTanstackTable() {
   const table = useReactTable({
     data,
     columns,
-    state: {
-      globalFilter,
-      columnFilters,
-      pagination,
-    },
-
+    state: { globalFilter, columnFilters, pagination },
     onPaginationChange: setPagination,
     onGlobalFilterChange: setGlobalFilter,
     onColumnFiltersChange: setColumnFilters,
@@ -207,8 +190,6 @@ export default function ShadeCnTanstackTable() {
   const hasFilters =
     table.getState().columnFilters.length > 0 ||
     !!table.getState().globalFilter;
-
-  // Pagination code Block
   const start = pagination.pageIndex * pagination.pageSize + 1;
   const end = Math.min(
     (pagination.pageIndex + 1) * pagination.pageSize,
@@ -218,11 +199,43 @@ export default function ShadeCnTanstackTable() {
 
   return (
     <>
-      <CreateShiftDialog
-        onCreate={(newShift) => {
-          setShifts((prev) => [newShift, ...prev]);
-        }}
-      />
+      <div className="mb-4">
+        <CustomBreadcrumbs
+          heading="Shift Management"
+          links={[
+            { name: "Dashboard", href: "/dashboard" },
+            { name: "Shifts Management" },
+          ]}
+          action={
+            <CreateShiftDialog
+              // --- CHANGE 4: Firebase Add Logic ---
+              onCreate={async (newShift) => {
+                try {
+                  console.log("Saving shift...");
+
+                  const docRef = await addDoc(
+                    collection(db, "shifts"),
+                    newShift,
+                  );
+
+                  const savedShift = {
+                    ...newShift,
+                    id: docRef.id,
+                  };
+
+                  setShifts((prev) => [savedShift, ...prev]);
+
+                  console.log("Shift saved:", savedShift);
+                } catch (error) {
+                  console.error("Firebase save failed:", error);
+                  throw error; // IMPORTANT so dialog can react if needed
+                }
+              }}
+            />
+          }
+        />
+      </div>
+
       <div className="rounded-md shadow-md overflow-hidden space-y-3 border-t border-gray-200">
         <div className="flex mt-4">
           <div className="flex items-center ml-4">
@@ -236,10 +249,8 @@ export default function ShadeCnTanstackTable() {
               onChange={(e) => setGlobalFilter(e.target.value)}
               className="w-64 border border-green-300 focus-visible:ring-2 focus-visible:ring-green-300"
             />
-
             <Input
               type="date"
-              placeholder="Shift Date"
               value={
                 (table.getColumn("date")?.getFilterValue() as string) ?? ""
               }
@@ -248,8 +259,6 @@ export default function ShadeCnTanstackTable() {
               }
               className="w-40"
             />
-
-            {/* Location */}
             <Select
               value={
                 (table.getColumn("location")?.getFilterValue() as string) ?? ""
@@ -261,6 +270,7 @@ export default function ShadeCnTanstackTable() {
               <SelectTrigger className="w-40">
                 <SelectValue placeholder="Locations" />
               </SelectTrigger>
+
               <SelectContent position="popper">
                 {locations.map((loc) => (
                   <SelectItem key={loc} value={loc ?? ""}>
@@ -269,8 +279,6 @@ export default function ShadeCnTanstackTable() {
                 ))}
               </SelectContent>
             </Select>
-
-            {/* Status */}
             <Select
               value={
                 (table.getColumn("status")?.getFilterValue() as string) ?? ""
@@ -280,44 +288,16 @@ export default function ShadeCnTanstackTable() {
               }
             >
               <SelectTrigger className="w-40">
-                {(() => {
-                  const selected = table
-                    .getColumn("status")
-                    ?.getFilterValue() as string;
-
-                  if (!selected) {
-                    return <span>Status</span>;
-                  }
-
-                  const color = statusColors[selected];
-
-                  return (
-                    <span
-                      className={`px-2 py-1 rounded-sm font-semibold ${color.bg} ${color.text}`}
-                    >
-                      {selected}
-                    </span>
-                  );
-                })()}
+                <SelectValue placeholder="Status" />
               </SelectTrigger>
-
               <SelectContent position="popper">
-                {statuses.map((status) => {
-                  const color = statusColors[status];
-                  return (
-                    <SelectItem
-                      key={status}
-                      value={status}
-                      className={`rounded-none ${color.bg} ${color.text}`}
-                    >
-                      {status}
-                    </SelectItem>
-                  );
-                })}
+                {statuses.map((status) => (
+                  <SelectItem key={status} value={status}>
+                    {status}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
-
-            {/* Level */}
             <Select
               value={
                 (table.getColumn("level")?.getFilterValue() as string) ?? ""
@@ -337,7 +317,6 @@ export default function ShadeCnTanstackTable() {
                 ))}
               </SelectContent>
             </Select>
-
             {hasFilters && (
               <Button
                 onClick={() => {
@@ -345,10 +324,6 @@ export default function ShadeCnTanstackTable() {
                   table.resetGlobalFilter();
                   setGlobalFilter("");
                 }}
-                disabled={
-                  !table.getState().columnFilters.length &&
-                  !table.getState().globalFilter
-                }
                 variant={"secondary"}
               >
                 Clear Filters
@@ -356,6 +331,7 @@ export default function ShadeCnTanstackTable() {
             )}
           </div>
         </div>
+
         <div className="overflow-hidden">
           <Table className="w-full table-fixed">
             <TableHeader className="h-12 font-bold bg-[#F4F6F8] shadow-sm">
@@ -372,10 +348,9 @@ export default function ShadeCnTanstackTable() {
                 </TableRow>
               ))}
             </TableHeader>
-
             <TableBody>
               {table.getRowModel().rows.length === 0 ? (
-                <TableRow className="">
+                <TableRow>
                   <TableCell
                     colSpan={columns.length}
                     className="text-center py-10 text-gray-500"
@@ -400,23 +375,13 @@ export default function ShadeCnTanstackTable() {
             </TableBody>
           </Table>
 
-          {/* Pagination */}
           <div className="flex items-center justify-between m-3">
-            {/* Current page info */}
-            {/* <div className="text-gray-500">
-            Showing {pagination.pageIndex + 1} of {table.getPageCount()}
-          </div> */}
-
             <div className="text-gray-500">
               Showing {start} to {end} of {total}
             </div>
-
             <div className="flex">
-              {/* Rows per page selector */}
               <Field orientation="horizontal" className="w-fit">
-                <FieldLabel htmlFor="select-rows-per-page">
-                  Rows per page
-                </FieldLabel>
+                <FieldLabel htmlFor="rows">Rows per page</FieldLabel>
                 <Select
                   value={pagination.pageSize.toString()}
                   onValueChange={(value) => table.setPageSize(Number(value))}
@@ -424,19 +389,17 @@ export default function ShadeCnTanstackTable() {
                   <SelectTrigger className="w-20">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent align="start">
+                  <SelectContent>
                     <SelectGroup>
-                      {[10, 20, 30, 40, 50].map((size) => (
-                        <SelectItem key={size} value={size.toString()}>
-                          {size}
+                      {[10, 20, 30].map((s) => (
+                        <SelectItem key={s} value={s.toString()}>
+                          {s}
                         </SelectItem>
                       ))}
                     </SelectGroup>
                   </SelectContent>
                 </Select>
               </Field>
-
-              {/* Pagination buttons */}
               <Pagination className="mx-0 w-auto">
                 <PaginationContent>
                   <PaginationItem>
@@ -449,15 +412,12 @@ export default function ShadeCnTanstackTable() {
                       }
                     />
                   </PaginationItem>
-
-                  {/* Page numbers */}
                   <PaginationItem>
-                    <span className="px-3 py-1">
+                    <span className="px-3">
                       Page {table.getState().pagination.pageIndex + 1} of{" "}
                       {table.getPageCount()}
                     </span>
                   </PaginationItem>
-
                   <PaginationItem>
                     <PaginationNext
                       onClick={() => table.nextPage()}
@@ -474,7 +434,6 @@ export default function ShadeCnTanstackTable() {
           </div>
         </div>
       </div>
-
       <ViewShiftDialog
         open={isOpen}
         shift={selectedShift}

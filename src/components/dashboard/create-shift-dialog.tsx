@@ -1,5 +1,9 @@
 "use client";
 
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,12 +27,9 @@ import {
   names,
   shiftTimings,
 } from "@/dataBase/shift-management/shift";
-import { useState } from "react";
 import { Shift } from "../types/shift";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 import FormField from "../ui/custom/formField";
+import { useToast } from "../context/toast-context";
 
 const schema = z.object({
   date: z.string().min(1, "Date is required"),
@@ -44,19 +45,18 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 type Props = {
-  onCreate: (shift: Shift) => void;
+  onCreate: (shift: Shift) => Promise<void>; // Promise return type update kiya
 };
-
-type ShiftType = "Morning Shift" | "Evening Shift" | "Night Shift";
-
+// type ShiftType = "Morning Shift" | "Evening Shift" | "Night Shift";
 export default function CreateShiftDialog({ onCreate }: Props) {
   const [open, setOpen] = useState(false);
+  const toast = useToast();
 
   const {
     register,
     handleSubmit,
     setValue,
-    formState: { errors },
+    formState: { errors, isSubmitting },
     reset,
   } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -79,7 +79,8 @@ export default function CreateShiftDialog({ onCreate }: Props) {
     "Staff Absence Cover",
   ];
 
-  const onSubmit = (data: FormData) => {
+  const onSubmit = async (data: FormData) => {
+    console.log("Button clicked, data received:", data);
     const { start, end } =
       shiftTimings[data.shiftType as keyof typeof shiftTimings];
 
@@ -99,9 +100,13 @@ export default function CreateShiftDialog({ onCreate }: Props) {
       isAutomated: false,
     };
 
-    onCreate(newShift);
-    reset();
-    setOpen(false);
+    try {
+      await onCreate(newShift);
+      reset();
+      setOpen(false); // only close after success
+    } catch (error) {
+      toast.error("Error creating shift");
+    }
   };
 
   const handleOpenChange = (val: boolean) => {
@@ -113,7 +118,7 @@ export default function CreateShiftDialog({ onCreate }: Props) {
     <div>
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogTrigger className="w-full flex justify-end mb-2 outline-none">
-          <Button>Create Shift</Button>
+          <Button className="px-4 py-5 text-md">Create Shift</Button>
         </DialogTrigger>
         <DialogContent className="max-w-2xl sm:max-w-3xl w-full p-6">
           <DialogHeader>
@@ -215,21 +220,19 @@ export default function CreateShiftDialog({ onCreate }: Props) {
             <div className="col-span-2">
               <FormField label="Shift Details" error={errors.details}>
                 <textarea
-                  className="border rounded-md p-2 w-full"
+                  className="border rounded-md p-2 w-full min-h-[80px]"
                   {...register("details")}
                 />
               </FormField>
 
-              {/* REPORTING */}
               <FormField label="Reporting" error={errors.reporting}>
                 <textarea
-                  className="border rounded-md p-2 w-full"
+                  className="border rounded-md p-2 w-full min-h-[80px]"
                   {...register("reporting")}
                 />
               </FormField>
             </div>
 
-            {/* BUTTONS */}
             <div className="col-span-2 flex justify-end gap-2">
               <Button
                 type="button"
@@ -238,8 +241,9 @@ export default function CreateShiftDialog({ onCreate }: Props) {
               >
                 Cancel
               </Button>
-
-              <Button type="submit">Create Shift</Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Creating..." : "Create Shift"}
+              </Button>
             </div>
           </form>
         </DialogContent>
