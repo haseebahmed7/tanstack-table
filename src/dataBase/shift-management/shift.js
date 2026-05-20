@@ -2,7 +2,7 @@ export const shiftTypes = ["Morning Shift", "Evening Shift", "Night Shift"];
 export const locations = ["Lahore", "Karachi", "Islamabad", "Multan"];
 export const shiftTimings = {
   "Morning Shift": { start: "09:00 AM", end: "05:00 PM" },
-  "Evening Shift": { start: "05:00 PM", end: "01:0 AM" },
+  "Evening Shift": { start: "05:00 PM", end: "01:00 AM" },
   "Night Shift": { start: "01:00 AM", end: "09:00 AM" },
 };
 export const levels = [

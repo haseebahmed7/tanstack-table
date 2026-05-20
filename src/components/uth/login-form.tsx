@@ -52,7 +52,7 @@ export default function LoginForm() {
     try {
       await signInWithEmailAndPassword(auth, data.email, data.password);
       toast.success("Welcome back!");
-      router.push("/shift-management");
+      router.push("/dashboard");
     } catch (error: any) {
       toast.error("Invalid Credentials.");
     }
