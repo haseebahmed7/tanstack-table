@@ -159,9 +159,7 @@ export default function TanstackTable() {
         cell: ({ row }) => {
           return (
             <button
-              onClick={() => {
-                console.log("View clicked:", row.original);
-              }}
+              onClick={() => {}}
               className="text-blue-500 hover:text-blue-700"
             >
               <FiEye size={17} />

@@ -44,10 +44,18 @@ import { Shift } from "../types/shift";
 import CreateShiftDialog from "./create-shift-dialog";
 import ViewShiftDialog from "./view-shift-dialog";
 import { CustomBreadcrumbs } from "../custom-breadcrums";
-
-// --- CHANGE 1: Firebase Imports ---
-import { db } from "@/lib/firebase";
-import { collection, getDocs, addDoc } from "firebase/firestore";
+import {
+  Ban,
+  Calendar,
+  CheckCircle,
+  Clock,
+  Timer,
+  UserCheck,
+  UserCog,
+  UserX,
+  X,
+} from "lucide-react";
+import GenericTabs from "../common/generic-tabs";
 
 export default function ShiftManagement() {
   const [globalFilter, setGlobalFilter] = useState("");
@@ -56,7 +64,7 @@ export default function ShiftManagement() {
   const [selectedShift, setSelectedShift] = useState<Shift | null>(null);
   const [isOpen, setIsOpen] = useState(false);
 
-  // --- CHANGE 2: Removed LocalStorage, initialized with empty array ---
+  // initialized with empty array ---
   const [shifts, setShifts] = useState<Shift[]>([]);
 
   const [pagination, setPagination] = useState({
@@ -64,22 +72,45 @@ export default function ShiftManagement() {
     pageSize: 10,
   });
 
-  // --- CHANGE 3: Fetching data from Firebase on load ---
+  const [activeTab, setActiveTab] = useState("all");
+  const tabs = [
+    { value: "all", label: "All Shifts", icon: <Calendar size={16} /> },
+    { value: "pending", label: "Pending", icon: <Clock size={16} /> },
+    { value: "booked", label: "Booked", icon: <CheckCircle size={16} /> },
+    { value: "worked", label: "Worked", icon: <UserCheck size={16} /> },
+    { value: "cancelled", label: "Cancelled", icon: <X size={16} /> },
+    { value: "declined", label: "Declined", icon: <Ban size={16} /> },
+    {
+      value: "not_assigned",
+      label: "Not Assigned",
+      icon: <UserCog size={16} />,
+    },
+    { value: "time_out", label: "Time Out", icon: <Timer size={16} /> },
+    { value: "not_attended", label: "Not Attended", icon: <UserX size={16} /> },
+  ];
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    table.getColumn("status")?.setFilterValue(value === "all" ? "" : value);
+  };
+
   useEffect(() => {
-    const fetchShifts = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, "shifts"));
-        const data = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Shift[];
-        setShifts(data);
-      } catch (error) {
-        console.error("Error fetching shifts: ", error);
-      }
-    };
-    fetchShifts();
+    const savedShifts = localStorage.getItem("shifts");
+    if (savedShifts) {
+      const parsed = JSON.parse(savedShifts);
+      parsed.sort((a: Shift, b: Shift) => a.date.localeCompare(b.date));
+      setShifts(parsed);
+    }
   }, []);
+
+  // useEffect(() => {
+  //   const alreadyReset = localStorage.getItem("reset_done");
+
+  //   if (!alreadyReset) {
+  //     localStorage.removeItem("shifts");
+  //     localStorage.setItem("reset_done", "true");
+  //   }
+  // }, []);
 
   const data: Shift[] = shifts;
   const columnHelper = createColumnHelper<Shift>();
@@ -104,53 +135,67 @@ export default function ShiftManagement() {
         header: "Date & Time",
         cell: ({ row }) => (
           <div>
-            <div>{row.original.date}</div>
-            <div>
+            {/* Agar aapne format badalna hai (DD/MM/YYYY) */}
+            <div className="font-medium">
+              {row.original.date.split("-").reverse().join("/")}
+            </div>
+            <div className="text-xs text-gray-500">
               {row.original.startDatetime} - {row.original.endDatetime}
             </div>
           </div>
         ),
-        filterFn: (row, columnId, value) => {
-          if (!value) return true;
-          const [day, month, year] = row.original.date.split("-");
-          return `${year}-${month}-${day}` === value;
+        // Filter function for YYYY-MM-DD
+        filterFn: (row, columnId, filterValue) => {
+          if (!filterValue) return true;
+          return row.original.date === filterValue; // Exact match for date
         },
       }),
       columnHelper.accessor("level", {
-        header: "Level",
+        header: () => <div className="text-center">Level</div>,
         cell: ({ getValue }) => (
-          <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded-sm">
-            {getValue()}
-          </span>
+          <div className="flex justify-center">
+            <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded-sm">
+              {getValue()}
+            </span>
+          </div>
         ),
         filterFn: "includesString",
       }),
       columnHelper.accessor("status", {
-        header: "Status",
+        header: () => <div className="text-center">Status</div>,
         cell: ({ getValue }) => {
-          const value = getValue() || "";
+          const value = (getValue() || "")
+            .trim()
+            .toLowerCase()
+            .replace(/\s+/g, "_");
           const color = statusColors[value] || {
             bg: "bg-gray-100",
-            text: "text-gray-800",
+            text: "text-gray-600",
           };
+
           return (
-            <span
-              className={`px-2 py-1 rounded-sm font-semibold ${color.bg} ${color.text}`}
-            >
-              {value}
-            </span>
+            <div className="flex justify-center">
+              <span
+                className={`px-2 py-1 rounded-sm font-semibold ${color.bg} ${color.text} capitalize`}
+              >
+                {value}
+              </span>
+            </div>
           );
         },
         filterFn: "includesString",
       }),
       columnHelper.accessor("isAutomated", {
-        header: "Process",
-        cell: ({ getValue }) =>
-          getValue() ? (
-            <img src="/automation.svg" alt="automation icon" />
-          ) : (
-            <img src="/candidate_selection.svg" alt="candidate icon" />
-          ),
+        header: () => <div className="text-center">Process</div>,
+        cell: ({ getValue }) => (
+          <div className="flex justify-center">
+            {getValue() ? (
+              <img src="/automation.svg" alt="automation icon" />
+            ) : (
+              <img src="/candidate_selection.svg" alt="candidate icon" />
+            )}
+          </div>
+        ),
       }),
       columnHelper.accessor((row) => row.candidate?.fullName, {
         header: "Candidate",
@@ -208,33 +253,26 @@ export default function ShiftManagement() {
           ]}
           action={
             <CreateShiftDialog
-              // --- CHANGE 4: Firebase Add Logic ---
-              onCreate={async (newShift) => {
-                try {
-                  console.log("Saving shift...");
+              onCreate={(newShift) => {
+                const updatedShifts = [newShift, ...shifts];
 
-                  const docRef = await addDoc(
-                    collection(db, "shifts"),
-                    newShift,
-                  );
+                // Direct string comparison (Ascending: 2026-05-20 pehle, 2026-05-24 baad mein)
+                updatedShifts.sort((a, b) => a.date.localeCompare(b.date));
 
-                  const savedShift = {
-                    ...newShift,
-                    id: docRef.id,
-                  };
-
-                  setShifts((prev) => [savedShift, ...prev]);
-
-                  console.log("Shift saved:", savedShift);
-                } catch (error) {
-                  console.error("Firebase save failed:", error);
-                  throw error; // IMPORTANT so dialog can react if needed
-                }
+                setShifts(updatedShifts);
+                localStorage.setItem("shifts", JSON.stringify(updatedShifts));
               }}
             />
           }
         />
       </div>
+
+      <GenericTabs
+        tabs={tabs}
+        activeTab={activeTab}
+        onChange={handleTabChange}
+        statusColors={statusColors}
+      />
 
       <div className="rounded-md shadow-md overflow-hidden space-y-3 border-t border-gray-200">
         <div className="flex mt-4">
@@ -334,7 +372,7 @@ export default function ShiftManagement() {
 
         <div className="overflow-hidden">
           <Table className="w-full table-fixed">
-            <TableHeader className="h-12 font-bold bg-[#F4F6F8] shadow-sm">
+            <TableHeader className="h-12 font-bold bg-[#F4F6F8]">
               {table.getHeaderGroups().map((headergroup) => (
                 <TableRow key={headergroup.id}>
                   {headergroup.headers.map((header) => (

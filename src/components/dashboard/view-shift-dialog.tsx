@@ -1,6 +1,7 @@
 "use client";
 
 import { Shift } from "../types/shift";
+import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 
 type ViewShiftProps = {
@@ -100,6 +101,17 @@ export default function ViewShiftDialog({
               <div className="bg-gray-100 p-3 rounded mt-1">
                 {shift.reporting ?? "N/A"}
               </div>
+            </div>
+
+            {/* Button section */}
+            <div className="flex justify-end mt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+              >
+                Cancel
+              </Button>
             </div>
           </div>
         )}

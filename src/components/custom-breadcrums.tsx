@@ -44,13 +44,13 @@ export function CustomBreadcrumbs({
                     {link.href && !isDisabled ? (
                       <Link
                         href={link.href}
-                        className={`text-sm font-medium transition-colors hover:text-primary ${linkColorClass}`}
+                        className={`font-medium transition-colors hover:text-primary ${linkColorClass}`}
                       >
                         {link.icon && <span className="mr-1">{link.icon}</span>}
                         {link.name}
                       </Link>
                     ) : (
-                      <span className={`text-sm font-medium ${linkColorClass}`}>
+                      <span className={`font-medium ${linkColorClass}`}>
                         {link.icon && <span className="mr-1">{link.icon}</span>}
                         {link.name}
                       </span>

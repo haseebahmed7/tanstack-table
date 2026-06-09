@@ -12,14 +12,13 @@ type Props = {
 export default function FormField({ label, error, required, children }: Props) {
   return (
     <div className="space-y-1">
-      <Label>
+      <Label className="font-semibold [&>span]:font-normal">
         {label} {required && <span className="text-red-500">*</span>}
       </Label>
       {children}
       {error?.message && (
         <p className="text-red-500 text-sm">{error.message}</p>
       )}
-      {required && <span className="text-red-500">*</span>}
     </div>
   );
 }

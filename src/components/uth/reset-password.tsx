@@ -10,6 +10,10 @@ import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useToast } from "../context/toast-context";
+import { getErrorMessage, getSuccessMessage } from "@/lib/error-handler";
+import { api } from "@/lib/api";
+import Cookies from "js-cookie";
+import FormField from "../ui/custom/formField";
 
 // ✅ schema
 const schema = z
@@ -42,7 +46,7 @@ export default function ResetPassword() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     mode: "onSubmit",
@@ -50,34 +54,30 @@ export default function ResetPassword() {
 
   // ✅ submit logic
   const onSubmit = async (data: FormData) => {
+    debugger;
     try {
-      toast.success("Password updated successfully!");
+      const uid = Cookies.get("resetPasswordUid");
+      const token = Cookies.get("resetPasswordToken");
+
+      if (!uid || !token) {
+        debugger;
+        toast.error("Session expired");
+        router.push("/forgot-password");
+        return;
+      }
+
+      const payload = {
+        uid,
+        token,
+        newPassword: data.password,
+      };
+
+      const res = await api.resetPasswordConfirm(payload);
+      toast.success(getSuccessMessage(res));
       router.push("/login");
-    } catch {}
-    // const savedUser = JSON.parse(localStorage.getItem("user") || "{}");
-    // const resetEmail = localStorage.getItem("resetEmail");
-
-    // // agar email hi nahi hai
-    // if (!resetEmail || savedUser.email !== resetEmail) {
-    //   alert("Something went wrong. Try again.");
-    //   router.push("/forgot-password");
-    //   return;
-    // }
-
-    // // password update
-    // const updatedUser = {
-    //   ...savedUser,
-    //   password: data.password,
-    // };
-
-    // localStorage.setItem("user", JSON.stringify(updatedUser));
-
-    // // cleanup
-    // localStorage.removeItem("resetEmail");
-
-    // alert("Password updated successfully!");
-
-    // router.push("/login");
+    } catch (error) {
+      toast.error(getErrorMessage(error));
+    }
   };
 
   return (
@@ -91,11 +91,12 @@ export default function ResetPassword() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             {/* Password */}
             <div className="space-y-2 relative">
-              <Label>New Password *</Label>
-              <Input
-                type={showPassword ? "text" : "password"}
-                {...register("password")}
-              />
+              <FormField label="New Password" required error={errors.password}>
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  {...register("password")}
+                />
+              </FormField>
 
               <div
                 onClick={togglePassword}
@@ -107,19 +108,20 @@ export default function ResetPassword() {
                   <Eye className="h-5 w-5" />
                 )}
               </div>
-
-              {errors.password && (
-                <p className="text-red-600">{errors.password.message}</p>
-              )}
             </div>
 
             {/* Confirm Password */}
             <div className="space-y-2 relative">
-              <Label>Confirm Password *</Label>
-              <Input
-                type={showConfirmPassword ? "text" : "password"}
-                {...register("confirmPassword")}
-              />
+              <FormField
+                label="Confirm Password"
+                required
+                error={errors.confirmPassword}
+              >
+                <Input
+                  type={showConfirmPassword ? "text" : "password"}
+                  {...register("confirmPassword")}
+                />
+              </FormField>
 
               <div
                 onClick={toggleConfirmPassword}
@@ -131,16 +133,13 @@ export default function ResetPassword() {
                   <Eye className="h-5 w-5" />
                 )}
               </div>
-
-              {errors.confirmPassword && (
-                <p className="text-red-600">{errors.confirmPassword.message}</p>
-              )}
             </div>
 
             {/* Button */}
             <Button
               type="submit"
-              className="w-full h-11 hover:bg-gray-700 cursor-pointer"
+              disabled={isSubmitting}
+              className="w-full h-11 hover:bg-primary-400/80 cursor-pointer"
             >
               Reset Password
             </Button>

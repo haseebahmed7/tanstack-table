@@ -21,8 +21,9 @@ export const statuses = [
   "Booked",
   "Worked",
   "Cancelled",
-  "Decline",
+  "Declined",
   "Not Assigned",
+  "Time Out",
   "Not Attended",
 ];
 export const names = [

@@ -13,3 +13,18 @@ export type Shift = {
   reporting?: string;
   isAutomated: boolean;
 };
+
+export type Candidate = {
+  id: string;
+  name: string;
+  level: string;
+  location: { title: string };
+  rankTitle: string;
+  rankScore: string;
+  availability: string;
+  status: string;
+  documents: string;
+  reason?: string;
+  details?: string;
+  reporting?: string;
+};
