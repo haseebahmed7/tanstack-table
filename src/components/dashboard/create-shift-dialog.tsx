@@ -29,7 +29,6 @@ import {
 } from "@/dataBase/shift-management/shift";
 import { Shift } from "../types/shift";
 import FormField from "../ui/custom/formField";
-import { useToast } from "../context/toast-context";
 
 const schema = z.object({
   date: z.string().min(1, "Date is required"),
@@ -45,12 +44,11 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 type Props = {
-  onCreate: (shift: Shift) => Promise<void>; // Promise return type update kiya
+  onCreate: (shift: Shift) => void; // Promise return type update kiya
 };
 // type ShiftType = "Morning Shift" | "Evening Shift" | "Night Shift";
 export default function CreateShiftDialog({ onCreate }: Props) {
   const [open, setOpen] = useState(false);
-  const toast = useToast();
 
   const {
     register,
@@ -79,8 +77,7 @@ export default function CreateShiftDialog({ onCreate }: Props) {
     "Staff Absence Cover",
   ];
 
-  const onSubmit = async (data: FormData) => {
-    console.log("Button clicked, data received:", data);
+  const onSubmit = (data: FormData) => {
     const { start, end } =
       shiftTimings[data.shiftType as keyof typeof shiftTimings];
 
@@ -100,13 +97,9 @@ export default function CreateShiftDialog({ onCreate }: Props) {
       isAutomated: false,
     };
 
-    try {
-      await onCreate(newShift);
-      reset();
-      setOpen(false); // only close after success
-    } catch (error) {
-      toast.error("Error creating shift");
-    }
+    onCreate(newShift);
+    reset();
+    setOpen(false);
   };
 
   const handleOpenChange = (val: boolean) => {
@@ -220,14 +213,14 @@ export default function CreateShiftDialog({ onCreate }: Props) {
             <div className="col-span-2">
               <FormField label="Shift Details" error={errors.details}>
                 <textarea
-                  className="border rounded-md p-2 w-full min-h-[80px]"
+                  className="border rounded-md p-2 w-full min-h-20"
                   {...register("details")}
                 />
               </FormField>
 
               <FormField label="Reporting" error={errors.reporting}>
                 <textarea
-                  className="border rounded-md p-2 w-full min-h-[80px]"
+                  className="border rounded-md p-2 w-full min-h-20"
                   {...register("reporting")}
                 />
               </FormField>

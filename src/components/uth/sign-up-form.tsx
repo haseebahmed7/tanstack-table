@@ -10,9 +10,10 @@ import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { createUserWithEmailAndPassword } from "firebase/auth";
 import { useToast } from "../context/toast-context";
-import { auth } from "@/lib/firebase";
+import { getErrorMessage, getSuccessMessage } from "@/lib/error-handler";
+import { api } from "@/lib/api";
+import FormField from "../ui/custom/formField";
 
 const schema = z
   .object({
@@ -51,11 +52,12 @@ export default function SignUpForm() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
       email: "",
+      fullName: "",
       password: "",
       confirmPassword: "",
     },
@@ -64,15 +66,11 @@ export default function SignUpForm() {
 
   const onSubmit = async (data: FormData) => {
     try {
-      await createUserWithEmailAndPassword(auth, data.email, data.password);
-      toast.success("Sign Up Successfully!✅");
+      const res = await api.signUp(data);
+      toast.success(getSuccessMessage(res));
       router.push("/login");
     } catch (error: any) {
-      if (error.code === "auth/email-already-in-use") {
-        toast.error("This email is already registered.");
-      } else {
-        toast.error("Something went wrong. Please try again.");
-      }
+      toast.error(getErrorMessage(error));
     }
   };
 
@@ -85,31 +83,28 @@ export default function SignUpForm() {
           <h1 className="text-3xl font-semibold">Sign Up</h1>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {/* Full Name */}
-            <div className="space-y-2">
-              <Label>Full Name *</Label>
-              <Input type="text" {...register("fullName")} />
-              {errors.fullName && (
-                <p className="text-red-600">{errors.fullName.message}</p>
-              )}
-            </div>
-
             {/* Email */}
             <div className="space-y-2">
-              <Label>Email *</Label>
-              <Input type="email" {...register("email")} />
-              {errors.email && (
-                <p className="text-red-600">{errors.email.message}</p>
-              )}
+              <FormField label="Email" error={errors.email} required>
+                <Input type="email" {...register("email")} />
+              </FormField>
+            </div>
+
+            {/* Full Name */}
+            <div className="space-y-2">
+              <FormField label="Full Name" error={errors.fullName} required>
+                <Input type="text" {...register("fullName")} />
+              </FormField>
             </div>
 
             {/* Password */}
             <div className="space-y-2 relative">
-              <Label>Password *</Label>
-              <Input
-                type={showPassword ? "text" : "password"}
-                {...register("password")}
-              />
+              <FormField label="Password" error={errors.password} required>
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  {...register("password")}
+                />
+              </FormField>
 
               <div
                 onClick={togglePassword}
@@ -121,19 +116,20 @@ export default function SignUpForm() {
                   <Eye className="h-5 w-5" />
                 )}
               </div>
-
-              {errors.password && (
-                <p className="text-red-600">{errors.password.message}</p>
-              )}
             </div>
 
             {/* Confirm Password */}
             <div className="space-y-2 relative">
-              <Label>Confirm Password *</Label>
-              <Input
-                type={showConfirmPassword ? "text" : "password"}
-                {...register("confirmPassword")}
-              />
+              <FormField
+                label="Confirm Password"
+                error={errors.confirmPassword}
+                required
+              >
+                <Input
+                  type={showConfirmPassword ? "text" : "password"}
+                  {...register("confirmPassword")}
+                />
+              </FormField>
 
               <div
                 onClick={toggleConfirmPassword}
@@ -145,24 +141,21 @@ export default function SignUpForm() {
                   <Eye className="h-5 w-5" />
                 )}
               </div>
-
-              {errors.confirmPassword && (
-                <p className="text-red-600">{errors.confirmPassword.message}</p>
-              )}
             </div>
 
             {/* Button */}
             <Button
               type="submit"
-              className="w-full h-11 hover:bg-gray-700 cursor-pointer"
+              disabled={isSubmitting}
+              className="w-full h-11 hover:bg-primary-400/80 cursor-pointer"
             >
-              Create Account
+              {isSubmitting ? "Creating..." : "Create Account"}
             </Button>
 
             {/* Login Link */}
             <p className="text-center">
               Already have an account?{" "}
-              <Link href="/login" className="text-blue-600 hover:underline">
+              <Link href="/login" className="text-red-600 hover:underline">
                 Login
               </Link>
             </p>

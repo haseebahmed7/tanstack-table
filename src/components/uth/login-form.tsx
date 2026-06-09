@@ -5,14 +5,15 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Label } from "../ui/label";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/lib/firebase";
 import { useToast } from "../context/toast-context";
+import { getErrorMessage, getSuccessMessage } from "@/lib/error-handler";
+import { api } from "@/lib/api";
+import FormField from "../ui/custom/formField";
+import Cookies from "js-cookie";
 
 const schema = z.object({
   email: z
@@ -34,11 +35,16 @@ export default function LoginForm() {
     setShowPassword((prev) => !prev);
   };
 
+  useEffect(() => {
+    Cookies.remove("resetPasswordEmail");
+    Cookies.remove("resetPasswordUid");
+    Cookies.remove("resetPasswordToken");
+  }, []);
+
   const {
     register,
     handleSubmit,
-    formState: { errors },
-    setError,
+    formState: { errors, isSubmitting },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -50,11 +56,12 @@ export default function LoginForm() {
 
   const onSubmit = async (data: FormData) => {
     try {
-      await signInWithEmailAndPassword(auth, data.email, data.password);
-      toast.success("Welcome back!");
+      const res = await api.login(data);
+
+      toast.success(getSuccessMessage(res));
       router.push("/dashboard");
     } catch (error: any) {
-      toast.error("Invalid Credentials.");
+      toast.error(getErrorMessage(error));
     }
   };
 
@@ -68,21 +75,18 @@ export default function LoginForm() {
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
-              <Label>
-                Email <span className="text-red-500">*</span>
-              </Label>
-              <Input type="email" {...register("email")} />
-              {errors.email && (
-                <p className="text-red-600">{errors.email.message}</p>
-              )}
+              <FormField label="Email" error={errors.email} required>
+                <Input type="email" {...register("email")} />
+              </FormField>
             </div>
 
             <div className="space-y-2 relative">
-              <Label>Password</Label>
-              <Input
-                type={showPassword ? "text" : "password"}
-                {...register("password")}
-              />
+              <FormField label="Password" required error={errors.password}>
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  {...register("password")}
+                />
+              </FormField>
 
               <div
                 onClick={togglePassword}
@@ -94,9 +98,6 @@ export default function LoginForm() {
                   <Eye className="h-5 w-5" />
                 )}
               </div>
-              {errors.password && (
-                <p className="text-red-600">{errors.password.message}</p>
-              )}
             </div>
 
             <div className="flex justify-end">
@@ -107,14 +108,15 @@ export default function LoginForm() {
 
             <Button
               type="submit"
-              className="w-full mt-4 h-11 hover:bg-gray-700 cursor-pointer"
+              disabled={isSubmitting}
+              className="w-full mt-4 h-11 hover:bg-primary-400/80 cursor-pointer"
             >
               Login To Dashboard
             </Button>
 
             <p className="text-center">
               Don't have an account?{" "}
-              <Link href="/sign-up" className="text-blue-600 hover:underline">
+              <Link href="/sign-up" className="text-red-600 hover:underline">
                 Sign Up
               </Link>
             </p>
