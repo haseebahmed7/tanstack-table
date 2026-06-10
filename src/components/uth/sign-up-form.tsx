@@ -12,7 +12,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useToast } from "../context/toast-context";
 import { getErrorMessage, getSuccessMessage } from "@/lib/error-handler";
-import { api } from "@/lib/api";
+import { api } from "@/lib/requests/auth/api";
 import FormField from "../ui/custom/formField";
 
 const schema = z

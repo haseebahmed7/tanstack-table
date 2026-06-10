@@ -11,7 +11,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useToast } from "../context/toast-context";
 import { getErrorMessage, getSuccessMessage } from "@/lib/error-handler";
-import { api } from "@/lib/api";
+import { api } from "@/lib/requests/auth/api";
 import Cookies from "js-cookie";
 import FormField from "../ui/custom/formField";
 
