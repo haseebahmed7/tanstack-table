@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useToast } from "../context/toast-context";
 import { getErrorMessage, getSuccessMessage } from "@/lib/error-handler";
-import { api } from "@/lib/api";
+import { api } from "@/lib/requests/auth/api";
 import FormField from "../ui/custom/formField";
 import Cookies from "js-cookie";
 
@@ -57,7 +57,6 @@ export default function LoginForm() {
   const onSubmit = async (data: FormData) => {
     try {
       const res = await api.login(data);
-
       toast.success(getSuccessMessage(res));
       router.push("/dashboard");
     } catch (error: any) {

@@ -8,7 +8,7 @@ import { useToast } from "../context/toast-context";
 import { getErrorMessage, getSuccessMessage } from "@/lib/error-handler";
 import FormField from "../ui/custom/formField";
 import { useEffect, useState } from "react";
-import { api } from "@/lib/api";
+import { api } from "@/lib/requests/auth/api";
 import Cookies from "js-cookie";
 import { Loader2 } from "lucide-react";
 
