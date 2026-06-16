@@ -2,7 +2,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { api } from "./api";
 
 // USER
-export const useUserProfile = () =>
+export const useGetUserProfile = () =>
   useQuery({
     queryKey: ["user-profile"],
     queryFn: api.getUserProfile,

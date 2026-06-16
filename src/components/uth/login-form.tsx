@@ -14,6 +14,9 @@ import { getErrorMessage, getSuccessMessage } from "@/lib/error-handler";
 import { api } from "@/lib/requests/auth/api";
 import FormField from "../ui/custom/formField";
 import Cookies from "js-cookie";
+import { useLogin } from "@/lib/requests/auth/auth-queries";
+import { useUser } from "../context/user-context";
+import { decodeJwtToken } from "@/lib/utils";
 
 const schema = z.object({
   email: z
@@ -28,8 +31,10 @@ type FormData = z.infer<typeof schema>;
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
+  const loginMutation = useLogin();
   const router = useRouter();
   const toast = useToast();
+  const { setAvatarPhotoUrl } = useUser();
 
   const togglePassword = () => {
     setShowPassword((prev) => !prev);
@@ -54,13 +59,39 @@ export default function LoginForm() {
     mode: "onSubmit",
   });
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = async (values: FormData) => {
     try {
-      const res = await api.login(data);
-      toast.success(getSuccessMessage(res));
-      router.push("/dashboard");
+      // clearAuthCookies();
+      const response = await loginMutation.mutateAsync(values);
+      const { access: token, profile, company } = response?.data || {};
+      console.log("Response", response.data);
+
+      if (token && profile && company) {
+        // Extract company_id from JWT token
+        const decodedToken = decodeJwtToken<{ company_id: number }>(token);
+        const companyIdFromToken = decodedToken?.company_id;
+
+        // Set cookies with proper options to ensure they're available immediately
+        Cookies.set("token", token, { path: "/" });
+        setAvatarPhotoUrl(profile.photo);
+        Cookies.set("userId", String(profile.id), { path: "/" });
+        Cookies.set("userType", profile.type, { path: "/" });
+        Cookies.set("userRoles", JSON.stringify(profile.roles), { path: "/" });
+        Cookies.set("companyId", String(companyIdFromToken), { path: "/" });
+        Cookies.set("companyName", company.title, { path: "/" });
+        Cookies.set(
+          "userFirstName",
+          `${profile.firstName} ${profile.lastName}`,
+          { path: "/" },
+        );
+      }
+
+      if (response?.status === "success") {
+        // Force a full page reload to ensure middleware runs with new cookies
+        router.push("/dashboard");
+      }
     } catch (error: any) {
-      toast.error(getErrorMessage(error));
+      console.error(error?.message);
     }
   };
 
