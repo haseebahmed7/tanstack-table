@@ -57,7 +57,7 @@ export default function Navbar() {
         </div>
 
         <div className={iconClass}>
-          <Link href="/my-account">
+          <Link href="/settings">
             <Settings className="w-6 h-6" />
           </Link>
         </div>

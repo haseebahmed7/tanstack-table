@@ -9,3 +9,28 @@ export interface User {
   zipCode?: string;
   phoneNumber?: string;
 }
+
+export interface Profile {
+  id: number;
+  firstName: string;
+  lastName: string;
+  type: string;
+  email: string;
+  photo: string;
+  roles: string[];
+  isProfileComplete?: boolean;
+}
+
+export interface Company {
+  title: string;
+}
+
+export interface Login {
+  refresh: string;
+  access: string;
+  profile: Profile;
+  company: Company;
+}
+
+export type UserPayload = Record<string, unknown> & User;
+export type UserResponse = User;
