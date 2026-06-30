@@ -40,7 +40,7 @@ import {
 } from "../ui/select";
 import { statuses, levels, locations } from "@/dataBase/shift-management/shift";
 import { statusColors } from "@/dataBase/statusColors/status-colors";
-import { Shift } from "../types/shift";
+import { Shift } from "../types/table-types";
 import CreateShiftDialog from "./create-shift-dialog";
 import ViewShiftDialog from "./view-shift-dialog";
 import { CustomBreadcrumbs } from "../custom-breadcrums";

@@ -39,9 +39,7 @@ import {
 } from "../ui/select";
 import { statuses, levels, locations } from "@/dataBase/shift-management/shift";
 import { statusColors } from "@/dataBase/statusColors/status-colors";
-import { Candidate, Shift } from "../types/shift";
-import CreateShiftDialog from "./create-shift-dialog";
-import ViewShiftDialog from "./view-shift-dialog";
+import { Candidate, Shift } from "../types/table-types";
 import { CustomBreadcrumbs } from "../custom-breadcrums";
 import { Eye, Mail, Users } from "lucide-react";
 import GenericTabs from "../common/generic-tabs";
@@ -51,11 +49,11 @@ export default function ShiftManagement() {
   const [globalFilter, setGlobalFilter] = useState("");
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
-  const [selectedShift, setSelectedShift] = useState<Shift | null>(null);
+  const [selectedShift, setSelectedShift] = useState<Candidate | null>(null);
   const [isOpen, setIsOpen] = useState(false);
 
   // initialized with empty array ---
-  const [shifts, setShifts] = useState<Shift[]>([]);
+  const [candidates, setCandidates] = useState<Candidate[]>([]);
 
   const [pagination, setPagination] = useState({
     pageIndex: 0,
@@ -78,11 +76,11 @@ export default function ShiftManagement() {
     if (savedShifts) {
       const parsed = JSON.parse(savedShifts);
       parsed.sort((a: Shift, b: Shift) => a.date.localeCompare(b.date));
-      setShifts(parsed);
+      setCandidates(parsed);
     }
   }, []);
 
-  const data: Shift[] = shifts;
+  const data: Candidate[] = candidates;
   const columnHelper = createColumnHelper<Candidate>();
 
   const columns = useMemo(
@@ -229,19 +227,6 @@ export default function ShiftManagement() {
             { name: "Dashboard", href: "/dashboard" },
             { name: "Candidates" },
           ]}
-          action={
-            <CreateShiftDialog
-              onCreate={(newShift) => {
-                const updatedShifts = [newShift, ...shifts];
-
-                // Direct string comparison (Ascending: 2026-05-20 pehle, 2026-05-24 baad mein)
-                updatedShifts.sort((a, b) => a.date.localeCompare(b.date));
-
-                setShifts(updatedShifts);
-                localStorage.setItem("shifts", JSON.stringify(updatedShifts));
-              }}
-            />
-          }
         />
       </div>
 
@@ -445,11 +430,11 @@ export default function ShiftManagement() {
           </div>
         </div>
       </div>
-      <ViewShiftDialog
+      {/* <ViewShiftDialog
         open={isOpen}
         shift={selectedShift}
         onOpenChange={setIsOpen}
-      />
+      /> */}
     </>
   );
 }

@@ -1,23 +1,6 @@
 import { User } from "./api-type";
 import { apiRequest } from "../../api-request";
 
-// const apiRequest = async (
-//   method: "get" | "post" | "put" | "delete",
-//   url: string,
-//   data?: any,
-// ) => {
-//   // Yahan hum data ko snake_case mein convert kar rahe hain (except FormData)
-//   const formattedData =
-//     data && !(data instanceof FormData) ? snakecaseKeys(data) : data;
-
-//   try {
-//     const response = await axiosInstance[method](url, formattedData);
-//     return response.data;
-//   } catch (error) {
-//     throw new Error(getErrorMessage(error));
-//   }
-// };
-
 export const api = {
   login: (data: any) => apiRequest("post", "/users/tokens/create/", data),
 

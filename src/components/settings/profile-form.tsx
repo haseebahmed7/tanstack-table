@@ -22,9 +22,6 @@ import {
   X,
 } from "lucide-react";
 import { useUser } from "../context/user-context";
-
-import FormField from "../ui/custom/formField";
-import { Input } from "../ui/input";
 import { PhoneNumberSettings } from "../phone-number";
 import Button from "../ui/custom/custom-button";
 import { Badge } from "../ui/badge";
@@ -55,10 +52,6 @@ export default function ProfileForm() {
     },
   });
 
-  const {
-    formState: { errors },
-  } = form;
-
   const toast = useToast();
   const { data: userProfile } = useGetUserProfile();
   const profile = userProfile?.data;
@@ -74,10 +67,10 @@ export default function ProfileForm() {
     if (!profile) return;
 
     form.reset({
-      firstName: profile.first_name ?? "",
-      lastName: profile.last_name ?? "",
+      firstName: profile.firstName ?? "",
+      lastName: profile.lastName ?? "",
       email: profile.email ?? "",
-      phoneNumber: profile.phone_number ?? "",
+      phoneNumber: profile.phoneNumber ?? "",
       photo: profile.photo ?? "",
     });
 
@@ -108,10 +101,10 @@ export default function ProfileForm() {
 
     if (profile) {
       form.reset({
-        firstName: profile.first_name ?? "",
-        lastName: profile.last_name ?? "",
+        firstName: profile.firstName ?? "",
+        lastName: profile.lastName ?? "",
         email: profile.email ?? "",
-        phoneNumber: profile.phone_number ?? "",
+        phoneNumber: profile.phoneNumber ?? "",
         photo: profile.photo ?? "",
       });
 
@@ -128,26 +121,16 @@ export default function ProfileForm() {
           <CardContent className="p-6">
             <div className="flex flex-col items-center gap-6">
               <div className="relative">
-                {form.watch("photo") ? (
-                  <Avatar className="h-24 w-24 cursor-pointer ring-4 ring-gray-100 transition-all duration-200 hover:ring-blue-300">
-                    <AvatarImage
-                      src={form.watch("photo")}
-                      alt={`${form.watch("firstName")} ${form.watch("lastName") || ""}`}
-                      className="object-cover"
-                    />
-                    <AvatarFallback className="bg-linear-to-br from-blue-500 to-purple-600 text-lg font-semibold text-white">
-                      {`${form.watch("firstName")?.[0]}${form.watch("lastName")?.[0] || ""}`}
-                    </AvatarFallback>
-                  </Avatar>
-                ) : (
-                  <div className="flex h-24 w-24 cursor-pointer items-center justify-center rounded-full bg-linear-to-br from-blue-500 to-purple-600 ring-4 ring-gray-100 transition-all duration-200 hover:ring-blue-300">
-                    <Avatar className="h-20 w-20">
-                      <AvatarFallback className="bg-linear-to-br from-blue-500 to-purple-600 text-lg font-semibold text-white">
-                        {`${form.watch("firstName")?.[0]}${form.watch("lastName")?.[0] || ""}`}
-                      </AvatarFallback>
-                    </Avatar>
-                  </div>
-                )}
+                <Avatar className="h-24 w-24 cursor-pointer ring-4 ring-gray-100 transition-all duration-200 hover:ring-blue-300">
+                  <AvatarImage
+                    src={form.watch("photo")}
+                    alt={`${form.watch("firstName")} ${form.watch("lastName") || "Profile photo"}`}
+                    className="object-cover"
+                  />
+                  <AvatarFallback className="bg-linear-to-br from-blue-500 to-purple-600 text-lg font-semibold text-white">
+                    {`${form.watch("firstName")?.[0]}${form.watch("lastName")?.[0] || ""}`}
+                  </AvatarFallback>
+                </Avatar>
 
                 <div
                   className="absolute inset-0 flex cursor-pointer items-center justify-center"
@@ -257,7 +240,7 @@ export default function ProfileForm() {
           </CardContent>
         </Card>
 
-        {profile?.billing_detail && (
+        {profile?.billingDetail && (
           <Card className="rounded-2xl shadow-lg">
             <CardContent className="p-6">
               <div className="mb-6 flex items-center gap-2">
@@ -279,7 +262,7 @@ export default function ProfileForm() {
                       variant="secondary"
                       className="bg-blue-100 text-blue-700"
                     >
-                      {profile.billing_detail.package_name || "N/A"}
+                      {profile.billingDetail.packageName || "N/A"}
                     </Badge>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
@@ -288,11 +271,11 @@ export default function ProfileForm() {
                       <div>
                         <p className="text-xs text-gray-500">Price</p>
                         <p className="text-sm font-semibold text-gray-900">
-                          {profile.billing_detail.package_price?.toLocaleString() ||
+                          {profile.billingDetail.packagePrice?.toLocaleString() ||
                             "0"}
                           <span className="ml-1 text-xs font-normal text-gray-500">
                             /
-                            {profile.billing_detail.package_interval || "month"}
+                            {profile.billingDetail.packageInterval || "month"}
                           </span>
                         </p>
                       </div>
@@ -302,7 +285,7 @@ export default function ProfileForm() {
                       <div>
                         <p className="text-xs text-gray-500">User Limit</p>
                         <p className="text-sm font-semibold text-gray-900">
-                          {profile.billing_detail.package_users_limit ||
+                          {profile.billingDetail.packageUsersLimit ||
                             "Unlimited"}
                         </p>
                       </div>
@@ -312,7 +295,7 @@ export default function ProfileForm() {
                       <div>
                         <p className="text-xs text-gray-500">Candidate Limit</p>
                         <p className="text-sm font-semibold text-gray-900">
-                          {profile.billing_detail.package_candidates_limit ||
+                          {profile.billingDetail.packageCandidatesLimit ||
                             "Unlimited"}
                         </p>
                       </div>
@@ -327,7 +310,7 @@ export default function ProfileForm() {
                       Billing Email
                     </label>
                     <p className="text-sm font-medium text-gray-900">
-                      {profile.billing_detail.email || "N/A"}
+                      {profile.billingDetail.email || "N/A"}
                     </p>
                   </div>
                   <div>
@@ -335,7 +318,7 @@ export default function ProfileForm() {
                       Billing Phone
                     </label>
                     <p className="text-sm font-medium text-gray-900">
-                      {profile.billing_detail.phone_number || "N/A"}
+                      {profile.billingDetail.phoneNumber || "N/A"}
                     </p>
                   </div>
                   <div>
@@ -343,9 +326,9 @@ export default function ProfileForm() {
                       Billing Name
                     </label>
                     <p className="text-sm font-medium text-gray-900">
-                      {profile.billing_detail.first_name &&
-                      profile.billing_detail.last_name
-                        ? `${profile.billing_detail.first_name} ${profile.billing_detail.last_name}`
+                      {profile.billingDetail.firstName &&
+                      profile.billingDetail.lastName
+                        ? `${profile.billingDetail.firstName} ${profile.billingDetail.lastName}`
                         : "N/A"}
                     </p>
                   </div>
@@ -354,7 +337,7 @@ export default function ProfileForm() {
                       Billing Address
                     </label>
                     <p className="text-sm font-medium text-gray-900">
-                      {profile.billing_detail.address || "N/A"}
+                      {profile.billingDetail.address || "N/A"}
                     </p>
                   </div>
                 </div>

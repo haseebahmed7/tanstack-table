@@ -36,8 +36,8 @@ export function CustomBreadcrumbs({
 
                 // 2. Conditional classes ke liye variable bana liya
                 const linkColorClass = isLast
-                  ? "text-foreground"
-                  : "text-muted-foreground";
+                  ? "text-black font-semibold"
+                  : "text-gray-700";
 
                 return (
                   <div key={link.name} className="flex items-center">

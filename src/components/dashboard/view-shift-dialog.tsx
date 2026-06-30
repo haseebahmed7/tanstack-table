@@ -1,6 +1,6 @@
 "use client";
 
-import { Shift } from "../types/shift";
+import { Shift } from "../types/table-types";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 

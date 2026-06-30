@@ -44,7 +44,7 @@ export function PhoneNumberSettings({
     <div className="flex flex-col space-y-1">
       <label className="text-sm font-medium text-gray-700">
         {label || "Phone Number"}
-        {required && <span className="ml-0.5 text-red-500">*</span>}
+        {required && <span className="ml-2 text-red-500">*</span>}
       </label>
       <PhoneInput
         key={country}
@@ -64,7 +64,9 @@ export function PhoneNumberSettings({
         }}
         placeholder="Enter your phone number"
       />
-      {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
+      {error && (
+        <p className="text-sm font-medium text-destructive mt-2">{error}</p>
+      )}
     </div>
   );
 }

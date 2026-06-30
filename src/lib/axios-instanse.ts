@@ -1,7 +1,8 @@
 import axios, { AxiosResponse } from "axios";
 import Cookies from "js-cookie";
-const baseURL = process.env.NEXT_PUBLIC_API_URL;
+import camelcaseKeys from "camelcase-keys";
 
+const baseURL = process.env.NEXT_PUBLIC_API_URL;
 const axiosInstance = axios.create({
   baseURL,
   headers: {
@@ -23,7 +24,13 @@ axiosInstance.interceptors.request.use(
 
 // Global Error Handler (Response Interceptor)
 axiosInstance.interceptors.response.use(
-  (response: AxiosResponse) => response, // Return response if it's successful
+  (response: AxiosResponse) => {
+    if (response.data && typeof response.data === "object") {
+      response.data = camelcaseKeys(response.data, { deep: true });
+    }
+
+    return response;
+  }, // Return response if it's successfull and convert it into camelCase
   async (error) => {
     // Token expired, try refreshing
     // Handle 401 error by signing out and redirecting to sign-in
