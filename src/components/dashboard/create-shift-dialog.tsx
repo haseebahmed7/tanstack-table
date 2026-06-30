@@ -27,7 +27,7 @@ import {
   names,
   shiftTimings,
 } from "@/dataBase/shift-management/shift";
-import { Shift } from "../types/shift";
+import { Shift } from "../types/table-types";
 import FormField from "../ui/custom/formField";
 
 const schema = z.object({
