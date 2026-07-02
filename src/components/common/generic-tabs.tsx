@@ -14,6 +14,7 @@ interface GenericTabsProps {
   onChange: (value: string) => void;
   statusColors?: Record<string, any>;
   showContent?: boolean;
+  isScrollable?: boolean;
 }
 
 export default function GenericTabs({
@@ -22,13 +23,21 @@ export default function GenericTabs({
   onChange,
   statusColors,
   showContent = true,
+  isScrollable = false,
 }: GenericTabsProps) {
   const activeTabData = tabs.find((tab) => tab.value === activeTab);
 
   return (
     <div>
       {/* 🔥 Tabs Header */}
-      <div className="flex shrink-0 bg-gray-100 rounded-lg mb-2 justify-between">
+      <div
+        className={cn(
+          "flex bg-gray-100 rounded-lg mb-2",
+          isScrollable
+            ? "overflow-x-auto whitespace-nowrap flex-nowrap"
+            : "justify-between",
+        )}
+      >
         {tabs.map((tab) => {
           const color = statusColors?.[tab.value];
           const isActive = activeTab === tab.value;

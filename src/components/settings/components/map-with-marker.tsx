@@ -1,7 +1,7 @@
 "use client";
 
 import { useGoogleMapsOptional } from "@/components/providers/google-map-provider";
-import { LatLng } from "@/lib/requests/company/types";
+import { LatLng } from "@/lib/requests/core-setup/locations/types";
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useRef, useState } from "react";
 

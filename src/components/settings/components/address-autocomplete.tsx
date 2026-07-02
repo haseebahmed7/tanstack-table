@@ -14,7 +14,7 @@ import {
   type KeyboardEvent,
   type ReactNode,
 } from "react";
-import { PlaceDetails } from "@/lib/requests/company/types";
+import { PlaceDetails } from "@/lib/requests/core-setup/locations/types";
 import { useGoogleMapsOptional } from "@/components/providers/google-map-provider";
 
 // Extract city, state, country, postal code from Google address_components

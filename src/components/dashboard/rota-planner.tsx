@@ -1,5 +1,5 @@
 import React from "react";
-import { CustomBreadcrumbs } from "../custom-breadcrums";
+import { CustomBreadcrumbs } from "../common/custom-breadcrums";
 
 export default function RotaPlanner() {
   return (

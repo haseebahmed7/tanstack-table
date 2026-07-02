@@ -15,13 +15,17 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { Form } from "@/components/ui/form";
 import { useCallback, useEffect, useState } from "react";
-import { PhoneNumberSettings } from "@/components/phone-number";
+import { PhoneNumberSettings } from "@/components/common/phone-number";
 import { GoogleMapsProvider } from "@/components/providers/google-map-provider";
 import {
   useCreateLocation,
   useUpdateLocation,
-} from "@/lib/requests/company/api";
-import { LatLng, Location, PlaceDetails } from "@/lib/requests/company/types";
+} from "@/lib/requests/core-setup/locations/api";
+import {
+  LatLng,
+  Location,
+  PlaceDetails,
+} from "@/lib/requests/core-setup/locations/types";
 import { useToast } from "@/components/context/toast-context";
 import { getErrorMessage, getSuccessMessage } from "@/lib/error-handler";
 import Button from "@/components/ui/custom/custom-button";
@@ -291,26 +295,30 @@ export default function AddLocationDialog({
                   />
                 </div>
               </div>
+
+              <div className="mt-4 px-0">
+                <MapWithMarker
+                  center={mapCenter}
+                  onMarkerPositionChange={handleMarkerPositionChange}
+                  className="w-full"
+                  height={450}
+                />
+              </div>
+
+              <DrawerFooter className="gap-2 border-t sm:flex-row sm:justify-end">
+                <Button type="button" variant="outline" onClick={handleClose}>
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  loading={isCreateLoading || isUpdateLoading}
+                >
+                  {locationDetail?.id ? "Update" : "Create"}
+                </Button>
+              </DrawerFooter>
             </form>
           </Form>
-          <div className="mt-4 px-0">
-            <MapWithMarker
-              center={mapCenter}
-              onMarkerPositionChange={handleMarkerPositionChange}
-              className="w-full"
-              height={450}
-            />
-          </div>
         </GoogleMapsProvider>
-
-        <DrawerFooter className="gap-2 border-t sm:flex-row sm:justify-end">
-          <Button type="button" variant="outline" onClick={handleClose}>
-            Cancel
-          </Button>
-          <Button type="submit" loading={isCreateLoading || isUpdateLoading}>
-            {locationDetail?.id ? "Update" : "Create"}
-          </Button>
-        </DrawerFooter>
       </DrawerContent>
     </Drawer>
   );

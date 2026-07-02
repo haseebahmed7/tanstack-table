@@ -1,4 +1,4 @@
-import { CustomBreadcrumbs } from "../custom-breadcrums";
+import { CustomBreadcrumbs } from "../common/custom-breadcrums";
 
 export default function Accounts() {
   return (

@@ -22,7 +22,7 @@ import {
   X,
 } from "lucide-react";
 import { useUser } from "../context/user-context";
-import { PhoneNumberSettings } from "../phone-number";
+import { PhoneNumberSettings } from "../common/phone-number";
 import Button from "../ui/custom/custom-button";
 import { Badge } from "../ui/badge";
 import { Field } from "../hook-form/fields";
@@ -274,8 +274,7 @@ export default function ProfileForm() {
                           {profile.billingDetail.packagePrice?.toLocaleString() ||
                             "0"}
                           <span className="ml-1 text-xs font-normal text-gray-500">
-                            /
-                            {profile.billingDetail.packageInterval || "month"}
+                            /{profile.billingDetail.packageInterval || "month"}
                           </span>
                         </p>
                       </div>

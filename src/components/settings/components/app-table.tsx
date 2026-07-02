@@ -22,8 +22,13 @@ type Column = {
 
 type AppTableProps = {
   title?: string;
+  placeholder?: string;
   button?: {
     title: string;
+    onClick: () => void;
+  };
+  secondaryButton?: {
+    title: React.ReactNode;
     onClick: () => void;
   };
   columns: Column[];
@@ -37,7 +42,9 @@ type AppTableProps = {
 
 export function AppTable({
   title,
+  placeholder,
   button,
+  secondaryButton,
   columns,
   data,
   isLoading = false,
@@ -49,17 +56,32 @@ export function AppTable({
   return (
     <Card
       className={cn(
-        "rounded-md shadow-lg overflow-hidden border-t border-gray-200 pt-6 pb-3",
+        "rounded-md shadow-lg overflow-hidden border-t border-gray-200 pt-6 pb-3 mb-4",
         className,
       )}
     >
-      <div className="flex justify-between px-4">
-        <h3 className="text-xl font-semibold">{title}</h3>
-        {button && (
-          <Button className="h-10 py-2 px-4 text-md" onClick={button.onClick}>
-            {button.title}
-          </Button>
-        )}
+      <div className="flex justify-between items-center px-4">
+        <div>
+          <h3 className="text-xl font-semibold">{title}</h3>
+          <p className="text-muted-foreground mt-1 text-sm">{placeholder}</p>
+        </div>
+        <div className="flex">
+          {secondaryButton && (
+            <Button
+              variant={"outline"}
+              className="h-10 py-2 px-4 text-md mr-2"
+              onClick={secondaryButton.onClick}
+            >
+              {secondaryButton.title}
+            </Button>
+          )}
+
+          {button && (
+            <Button className="h-10 py-2 px-4 text-md" onClick={button.onClick}>
+              {button.title}
+            </Button>
+          )}
+        </div>
       </div>
       <div className="w-full overflow-x-auto">
         <Table>
@@ -70,7 +92,7 @@ export function AppTable({
                 <TableHead
                   key={i}
                   className={cn(
-                    "font-semibold text-gray-900 text-[16px]",
+                    "font-semibold text-gray-900 text-[14px]",
                     col.className,
                   )}
                 >
