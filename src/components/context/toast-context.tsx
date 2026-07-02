@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, ReactNode } from "react";
-import Toast from "../toast";
+import Toast from "../common/toast";
 
 type ToastType = "success" | "error";
 

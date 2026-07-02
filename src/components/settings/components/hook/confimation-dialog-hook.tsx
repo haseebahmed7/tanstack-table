@@ -1,36 +1,45 @@
 "use client";
 
 import { useState } from "react";
-import { Location } from "../types/core-setup-types";
 
-type OnDeleteFn = (id: number) => Promise<any>;
+type DeleteConfig = {
+  message: string;
+  action: () => Promise<any>;
+};
 
-export function useConfirmDelete(onDelete: OnDeleteFn) {
+export function useConfirmDelete() {
   const [open, setOpen] = useState(false);
-  const [selected, setSelected] = useState<Location | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [config, setConfig] = useState<DeleteConfig | null>(null);
 
-  const askDelete = (row: Location) => {
-    setSelected(row);
+  const askDelete = (config: DeleteConfig) => {
+    setConfig(config);
     setOpen(true);
   };
 
   const close = () => {
     setOpen(false);
-    setSelected(null);
+    setConfig(null);
   };
 
   const confirm = async () => {
-    if (!selected) return;
+    if (!config) return;
 
-    await onDelete(selected.id);
-    close();
+    try {
+      setLoading(true);
+      await config.action();
+      close();
+    } finally {
+      setLoading(false);
+    }
   };
 
   return {
     open,
+    loading,
+    message: config?.message,
     askDelete,
     close,
     confirm,
-    selected,
   };
 }

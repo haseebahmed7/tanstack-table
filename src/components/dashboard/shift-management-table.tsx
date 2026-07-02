@@ -43,7 +43,7 @@ import { statusColors } from "@/dataBase/statusColors/status-colors";
 import { Shift } from "../types/table-types";
 import CreateShiftDialog from "./create-shift-dialog";
 import ViewShiftDialog from "./view-shift-dialog";
-import { CustomBreadcrumbs } from "../custom-breadcrums";
+import { CustomBreadcrumbs } from "../common/custom-breadcrums";
 import {
   Ban,
   Calendar,

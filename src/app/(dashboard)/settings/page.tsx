@@ -1,6 +1,6 @@
 "use client";
 import GenericTabs from "@/components/common/generic-tabs";
-import { CustomBreadcrumbs } from "@/components/custom-breadcrums";
+import { CustomBreadcrumbs } from "@/components/common/custom-breadcrums";
 import CoreSetup from "@/components/settings/core-setup";
 import ProfileForm from "@/components/settings/profile-form";
 import { Bell } from "lucide-react";

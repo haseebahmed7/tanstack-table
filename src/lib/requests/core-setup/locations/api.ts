@@ -1,10 +1,6 @@
 import { apiRequest } from "@/lib/api-request";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  CreateLocationPayload,
-  Location,
-  UpdateLocationPayload,
-} from "./types";
+import { CreateLocationPayload, UpdateLocationPayload } from "./types";
 
 export const useGetLocations = () =>
   useQuery({

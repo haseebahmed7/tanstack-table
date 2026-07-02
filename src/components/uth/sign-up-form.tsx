@@ -76,7 +76,7 @@ export default function SignUpForm() {
 
   return (
     <div className="grid grid-cols-12 min-h-screen">
-      <div className="col-span-8 bg-gray-100"></div>
+      <div className="col-span-8 bg-[#F9EFDF]"></div>
 
       <div className="col-span-4 flex items-center justify-center">
         <div className="w-full max-w-md p-6 space-y-4 bg-white">

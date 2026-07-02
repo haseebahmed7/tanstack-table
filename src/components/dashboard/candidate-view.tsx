@@ -40,7 +40,7 @@ import {
 import { statuses, levels, locations } from "@/dataBase/shift-management/shift";
 import { statusColors } from "@/dataBase/statusColors/status-colors";
 import { Candidate, Shift } from "../types/table-types";
-import { CustomBreadcrumbs } from "../custom-breadcrums";
+import { CustomBreadcrumbs } from "../common/custom-breadcrums";
 import { Eye, Mail, Users } from "lucide-react";
 import GenericTabs from "../common/generic-tabs";
 import { IoLocationOutline } from "react-icons/io5";

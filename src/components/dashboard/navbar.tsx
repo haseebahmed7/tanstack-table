@@ -2,7 +2,7 @@
 import { Settings, LogOut, Bell, Headset, Building2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import CurrentTime from "../current-time";
+import CurrentTime from "../common/current-time";
 import { useEffect, useRef, useState } from "react";
 
 export default function Navbar() {

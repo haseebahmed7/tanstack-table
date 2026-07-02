@@ -1,7 +1,7 @@
 // components/core/breadcrumb/CustomBreadcrumbs.tsx
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
-import { CustomBreadcrumbsProps } from "./types/breadcrums-type";
+import { CustomBreadcrumbsProps } from "../types/breadcrums-type";
 
 export function CustomBreadcrumbs({
   links,

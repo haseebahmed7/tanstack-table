@@ -15,7 +15,7 @@ interface ConfirmationDialogProps {
   onConfirm: () => void;
 }
 
-export function ConfirmationDialog({
+export function DeleteConfirmationDialog({
   open,
   onClose,
   message,
