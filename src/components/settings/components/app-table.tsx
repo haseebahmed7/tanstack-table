@@ -38,6 +38,7 @@ type AppTableProps = {
   onEdit?: (row: any) => void;
   onDelete?: (row: any) => void;
   className?: string;
+  children?: React.ReactNode;
 };
 
 export function AppTable({
@@ -52,6 +53,7 @@ export function AppTable({
   onEdit,
   onDelete,
   className,
+  children,
 }: AppTableProps) {
   return (
     <Card
@@ -63,7 +65,9 @@ export function AppTable({
       <div className="flex justify-between items-center px-4">
         <div>
           <h3 className="text-xl font-semibold">{title}</h3>
-          <p className="text-muted-foreground mt-1 text-sm">{placeholder}</p>
+          <p className="text-muted-foreground mt-1 text-[15px]">
+            {placeholder}
+          </p>
         </div>
         <div className="flex">
           {secondaryButton && (
@@ -108,9 +112,8 @@ export function AppTable({
             </TableRow>
           </TableHeader>
 
-          {/* BODY */}
-          <TableBody>
-            {isLoading ? (
+          {isLoading ? (
+            <TableBody>
               <TableRow>
                 <TableCell
                   colSpan={columns.length + (action ? 1 : 0)}
@@ -119,51 +122,57 @@ export function AppTable({
                   Loading Data...
                 </TableCell>
               </TableRow>
-            ) : data?.length ? (
-              data.map((row, rowIndex) => (
-                <TableRow key={rowIndex}>
-                  {columns.map((col, colIndex) => (
-                    <TableCell key={colIndex} className={col.className}>
-                      {col.cell ? col.cell(row) : row[col.accessor]}
-                    </TableCell>
-                  ))}
+            </TableBody>
+          ) : children ? (
+            children
+          ) : (
+            <TableBody>
+              {data?.length ? (
+                data.map((row, rowIndex) => (
+                  <TableRow key={rowIndex}>
+                    {columns.map((col, colIndex) => (
+                      <TableCell key={colIndex} className={col.className}>
+                        {col.cell ? col.cell(row) : row[col.accessor]}
+                      </TableCell>
+                    ))}
 
-                  {action && (
-                    <TableCell className="text-right space-x-2">
-                      {onEdit && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => onEdit(row)}
-                        >
-                          <Pencil />
-                        </Button>
-                      )}
+                    {action && (
+                      <TableCell className="text-right space-x-2">
+                        {onEdit && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => onEdit(row)}
+                          >
+                            <Pencil />
+                          </Button>
+                        )}
 
-                      {onDelete && (
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={() => onDelete(row)}
-                        >
-                          <Trash2 />
-                        </Button>
-                      )}
-                    </TableCell>
-                  )}
+                        {onDelete && (
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => onDelete(row)}
+                          >
+                            <Trash2 />
+                          </Button>
+                        )}
+                      </TableCell>
+                    )}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length + (action ? 1 : 0)}
+                    className="text-center text-lg py-15 text-gray-500"
+                  >
+                    No data available
+                  </TableCell>
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length + (action ? 1 : 0)}
-                  className="text-center text-lg py-15 text-gray-500"
-                >
-                  No data available
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
+              )}
+            </TableBody>
+          )}
         </Table>
       </div>
     </Card>

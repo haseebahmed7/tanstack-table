@@ -4,6 +4,7 @@ import "./globals.css";
 import { ToastProvider } from "@/components/context/toast-context";
 import { TanstackProvider } from "@/components/providers/tanstack-provider";
 import { UserProvider } from "@/components/context/user-context";
+import { ToastService } from "@/lib/toast/toast-service";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,7 +34,10 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <ToastProvider>
           <TanstackProvider>
-            <UserProvider>{children}</UserProvider>
+            <UserProvider>
+              {children}
+              {ToastService.Toaster}
+            </UserProvider>
           </TanstackProvider>
         </ToastProvider>
       </body>
