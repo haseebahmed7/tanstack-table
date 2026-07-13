@@ -1,6 +1,8 @@
 import { apiRequest } from "@/lib/api-request";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CreateLocationPayload, UpdateLocationPayload } from "./types";
+import { ToastService } from "@/lib/toast/toast-service";
+import { getSuccessMessage } from "@/lib/error-handler";
 
 export const useGetLocations = () =>
   useQuery({
@@ -40,6 +42,14 @@ export const useUpdateLocation = () => {
   return useMutation({
     mutationFn: ({ id, data }: UpdateLocationPayload) =>
       apiRequest("put", `/companies/locations/${id}/`, data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["locations"] }),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({
+        queryKey: ["locations"],
+      });
+
+      ToastService.show(getSuccessMessage(data), {
+        type: "success",
+      });
+    },
   });
 };

@@ -6,11 +6,11 @@ import {
 import { AppTable } from "./components/app-table";
 import { PhoneNumberDisplay } from "./components/phone-number-display";
 import { useConfirmDelete } from "./components/hook/confimation-dialog-hook";
-import { DeleteConfirmationDialog } from "./components/confirmation-dialog";
-import AddLocationDialog from "./components/add-location-dialog";
+import { DeleteConfirmationDialog } from "./components/dialogs/confirmation-dialog";
+import AddLocationDialog from "./components/dialogs/add-location-dialog";
 import { useState } from "react";
 import { Location } from "@/lib/requests/core-setup/locations/types";
-import { AddGradeDialog } from "./components/salary-band-dialog";
+import { AddGradeDialog } from "./components/dialogs/salary-band-dialog";
 import { Grade } from "@/lib/requests/core-setup/salary-band/types";
 import {
   useDeleteGrade,
@@ -23,24 +23,38 @@ import {
 } from "@/lib/requests/core-setup/ranks/api";
 import { Rank } from "@/lib/requests/core-setup/ranks/type";
 import { Avatar } from "./components/user-avatar";
-import { AddRankDialog } from "./components/rank-dialog";
-import { HowRanksWorkDialog } from "./components/howRankWorkDialog";
+import { AddRankDialog } from "./components/dialogs/rank-dialog";
+import { HowRanksWorkDialog } from "./components/dialogs/howRankWorkDialog";
 import { Reason } from "@/lib/requests/core-setup/reasons/type";
 import GenericTabs from "../common/generic-tabs";
 import {
   useDeleteReason,
   useGetReasons,
 } from "@/lib/requests/core-setup/reasons/api";
+import AddReasonDialog from "./components/dialogs/reason.dialog";
+import {
+  useDeleteLevel,
+  useGetLevelForest,
+} from "@/lib/requests/core-setup/levels/api";
+import {
+  Level,
+  LevelForest,
+  LevelTree,
+} from "@/lib/requests/core-setup/levels/types";
+import LevelTreeTable from "./components/level-tree";
+import { AddLevelDialog } from "./components/dialogs/add-level-dialog";
 
 export default function CoreSetup() {
   const [editLocation, setEditLocation] = useState<Location | null>(null);
   const [editGrade, setEditGrade] = useState<Grade | null>(null);
-  // const [editLevel, setEditLevel] = useState<Level | null>(null);
+  const [editLevel, setEditLevel] = useState<number | null>(null);
+  const [editLevelTitle, setEdiLevelTitle] = useState("");
   const [editRank, setEditRank] = useState<Rank | null>(null);
   const [editReason, setEditReason] = useState<Reason | null>(null);
 
   const [locationDialogOpen, setLocationDialogOpen] = useState(false);
   const [levelDialogOpen, setLevelDialogOpen] = useState(false);
+  const [levelParentId, setLevelParentId] = useState<number | null>(null);
   const [gradeDialogOpen, setGradeDialogOpen] = useState(false);
   const [rankDialogOpen, setRankDialogOpen] = useState(false);
   const [howRankWorkDialog, setHowRankWorkDialog] = useState(false);
@@ -59,9 +73,13 @@ export default function CoreSetup() {
   const { data: rankList, isLoading: isRankListLoading } = useGetRanks();
   const { mutateAsync: deleteRank } = useDeleteRanks();
 
-  const { data: reasonList, isLoading: isReasonkListLoading } = useGetReasons();
-  console.log("Reason Data:", reasonList);
+  const { data: reasonList, isLoading: isReasonkListLoading } =
+    useGetReasons(activeTab);
   const { mutateAsync: deleteReason } = useDeleteReason();
+
+  const { data: levelTree, isLoading: isLevelTreeLoading } =
+    useGetLevelForest();
+  const { mutateAsync: deleteLevel } = useDeleteLevel();
 
   const locationHeaders = [
     { accessor: "title", header: "Location" },
@@ -79,11 +97,18 @@ export default function CoreSetup() {
   ];
   const levelHeaders = [
     { accessor: "title", header: "Level" },
-    { accessor: "salaryBand", header: "Salary Band Required" },
+    {
+      accessor: "salaryBand",
+      header: "Salary Band Required",
+    },
     {
       accessor: "rateRule",
       header: "Rate Rule",
-      // className: "text-center w-[20%]",
+    },
+    {
+      accessor: "action",
+      header: "Actions",
+      className: "text-right text-[16px] font-semibold text-gray-900 pr-6",
     },
   ];
   const salaryBand = [{ accessor: "title", header: "Salary Band" }];
@@ -166,27 +191,31 @@ export default function CoreSetup() {
 
       <AppTable
         title="Levels"
-        placeholder="Use levels to mirror your organisation's real structure – from site to team to role.
-        This ensures shifts are booked correctly and candidates are matched accurately."
-        // data={locationList?.data?.results || []}
-        isLoading={isLocationListLoading}
+        placeholder="Use levels to mirror your organisation's real structure – from site to team to role. This ensures shifts are booked correctly and candidates are matched accurately."
         button={{
           title: "Add Top Level",
-          onClick: () => setLevelDialogOpen(true),
+          onClick: () => {
+            setLevelParentId(null);
+            setLevelDialogOpen(true);
+          },
         }}
+        isLoading={isLevelTreeLoading}
         columns={levelHeaders}
-        action={true}
-        onEdit={(row) => {
-          // setEditLevel(row);
-          setLevelDialogOpen(true);
-        }}
-        // onDelete={(row) =>
-        //   deleteDialog.askDelete({
-        //     message: `Are you sure you want to delete level "${row.title}"?`,
-        //     action: () => deleteLevelMut(row.id),
-        //   })
-        // }
-      />
+      >
+        <LevelTreeTable
+          levels={levelTree?.data ?? []}
+          onAdd={(parentId) => {
+            setLevelParentId(parentId);
+            setLevelDialogOpen(true);
+          }}
+          onDelete={(row) =>
+            deleteDialog.askDelete({
+              message: `Are you sure you want to delete Level "${row.title}"?`,
+              action: () => deleteLevel(row.id),
+            })
+          }
+        />
+      </AppTable>
 
       <AppTable
         title="Salary Band"
@@ -250,11 +279,7 @@ export default function CoreSetup() {
 
       <AppTable
         title="Reasons"
-        data={
-          reasonList?.data?.results?.filter(
-            (reason: Reason) => reason.type === activeTab,
-          ) || []
-        }
+        data={reasonList?.data?.results || []}
         isLoading={isReasonkListLoading}
         button={{
           title: "Add Reason",
@@ -268,7 +293,7 @@ export default function CoreSetup() {
         }}
         onDelete={(row) =>
           deleteDialog.askDelete({
-            message: `Are you sure you want to delete Reason "${row.title}"?`,
+            message: `Are you sure you want to delete Reason "${row.message}"?`,
             action: () => deleteReason(row.id),
           })
         }
@@ -282,6 +307,15 @@ export default function CoreSetup() {
         }}
         locationDetail={editLocation}
         setLocationDetail={setEditLocation}
+      />
+
+      <AddLevelDialog
+        open={levelDialogOpen}
+        parent={levelParentId}
+        onClose={() => {
+          setLevelDialogOpen(false);
+          setLevelParentId(null);
+        }}
       />
       <AddGradeDialog
         open={gradeDialogOpen}
@@ -308,6 +342,17 @@ export default function CoreSetup() {
         onClose={() => {
           setHowRankWorkDialog(false);
         }}
+      />
+
+      <AddReasonDialog
+        open={reasonDialogOpen}
+        onClose={() => {
+          setReasonDialogOpen(false);
+        }}
+        reasonDetail={editReason}
+        setReasonDetail={setEditReason}
+        defaultType={activeTab}
+        disabledType={true}
       />
 
       <DeleteConfirmationDialog

@@ -29,8 +29,8 @@ import {
 import { useToast } from "@/components/context/toast-context";
 import { getErrorMessage, getSuccessMessage } from "@/lib/error-handler";
 import Button from "@/components/ui/custom/custom-button";
-import { AddressAutocomplete } from "./address-autocomplete";
-import { MapWithMarker } from "./map-with-marker";
+import { AddressAutocomplete } from "../address-autocomplete";
+import { MapWithMarker } from "../map-with-marker";
 
 const formSchema = z.object({
   id: z.number().optional(),
@@ -168,7 +168,7 @@ export default function AddLocationDialog({
   const handleClose = () => {
     setTimeout(() => {
       form.reset(defaultValues);
-      // setMapCenter(null);
+      setMapCenter(null);
       setLocationDetail?.(null);
     }, 200);
     onClose();
