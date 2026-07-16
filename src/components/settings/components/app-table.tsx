@@ -25,6 +25,7 @@ type AppTableProps = {
   placeholder?: string;
   button?: {
     title: string;
+    icon?: React.ReactNode;
     onClick: () => void;
   };
   secondaryButton?: {
@@ -39,6 +40,7 @@ type AppTableProps = {
   onDelete?: (row: any) => void;
   className?: string;
   children?: React.ReactNode;
+  rowClassName?: string;
 };
 
 export function AppTable({
@@ -54,6 +56,7 @@ export function AppTable({
   onDelete,
   className,
   children,
+  rowClassName,
 }: AppTableProps) {
   return (
     <Card
@@ -82,6 +85,7 @@ export function AppTable({
 
           {button && (
             <Button className="h-10 py-2 px-4 text-md" onClick={button.onClick}>
+              {button.icon}
               {button.title}
             </Button>
           )}
@@ -131,7 +135,10 @@ export function AppTable({
                 data.map((row, rowIndex) => (
                   <TableRow key={rowIndex}>
                     {columns.map((col, colIndex) => (
-                      <TableCell key={colIndex} className={col.className}>
+                      <TableCell
+                        key={colIndex}
+                        className={cn(rowClassName, col.className)}
+                      >
                         {col.cell ? col.cell(row) : row[col.accessor]}
                       </TableCell>
                     ))}

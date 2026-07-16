@@ -20,6 +20,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Field } from "@/components/hook-form/fields";
+import RateRuleDialog from "./dialogs/add-rate-rule-dialog";
 
 type LevelTreeProps = {
   levels: LevelTreeType[];
@@ -58,19 +59,30 @@ export default function LevelTreeTable({
   };
 
   return (
-    <TableBody>
-      {levels.map((level: LevelTreeType) => (
-        <LevelRow
-          key={level.id}
-          level={level}
-          expanded={expanded}
-          toggleExpand={toggleExpand}
-          onDelete={(level) => onDelete?.(level)}
-          onAdd={onAdd}
-          onRateRule={handleRateRule}
+    <>
+      <TableBody>
+        {levels.map((level: LevelTreeType) => (
+          <LevelRow
+            key={level.id}
+            level={level}
+            expanded={expanded}
+            toggleExpand={toggleExpand}
+            onDelete={(level) => onDelete?.(level)}
+            onAdd={onAdd}
+            onRateRule={handleRateRule}
+          />
+        ))}
+      </TableBody>
+      {rateRuleLevel && (
+        <RateRuleDialog
+          open={!!rateRuleLevel}
+          onClose={() => setRateRuleLevel(null)}
+          levelId={rateRuleLevel.id}
+          levelTitle={rateRuleLevel.title}
+          isGradeRequired={rateRuleLevel.isGradeRequired}
         />
-      ))}
-    </TableBody>
+      )}
+    </>
   );
 }
 
@@ -211,6 +223,7 @@ function LevelRow({
               <Switch
                 checked={level.isGradeRequired}
                 className="cursor-not-allowed"
+                disabled
               />
             )}
           </TableCell>

@@ -36,11 +36,6 @@ import {
   useDeleteLevel,
   useGetLevelForest,
 } from "@/lib/requests/core-setup/levels/api";
-import {
-  Level,
-  LevelForest,
-  LevelTree,
-} from "@/lib/requests/core-setup/levels/types";
 import LevelTreeTable from "./components/level-tree";
 import { AddLevelDialog } from "./components/dialogs/add-level-dialog";
 

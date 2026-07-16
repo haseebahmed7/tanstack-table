@@ -26,7 +26,7 @@ const buttonVariants = cva("cursor-pointer", {
       "outline-danger": "border border-red-500 text-red-500 hover:bg-red-50",
       "outline-info": "border border-blue-500 text-blue-500 hover:bg-blue-50",
       outline:
-        "border bg-background pointer shadow-xs text-black hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
+        "border-border bg-background pointer shadow-xs text-black hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
       link: "underline-offset-4 hover:underline text-primary",
       icon: "bg-transparent text-primary-foreground hover:bg-transparent !h-auto !p-0",
       "period-active": "rounded-full bg-[#f66c84] text-white shadow-md",
