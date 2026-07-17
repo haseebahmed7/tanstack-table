@@ -6,6 +6,7 @@ interface TabItem {
   label: string;
   icon: ReactNode;
   content?: ReactNode;
+  labelClassName?: string;
 }
 
 interface GenericTabsProps {
@@ -56,7 +57,7 @@ export default function GenericTabs({
               )}
             >
               {tab.icon}
-              {tab.label}
+              <span className={cn(tab.labelClassName)}>{tab.label}</span>
             </button>
           );
         })}

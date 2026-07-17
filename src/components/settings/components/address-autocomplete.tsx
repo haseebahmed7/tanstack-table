@@ -451,7 +451,10 @@ export function AddressAutocomplete({
               : undefined
           }
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            onChange(e.target.value);
+          }}
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
           onFocus={() =>
