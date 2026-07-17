@@ -132,31 +132,37 @@ export default function CoreSetup() {
       value: "document_rejected",
       label: "Company - Document Rejected",
       icon: <X className="h-4 w-4" />,
+      labelClassName: "text-xs",
     },
     {
       value: "shift_cancelled_client",
       label: "Company - Shift Cancelled",
       icon: <Ban className="h-4 w-4" />,
+      labelClassName: "text-xs",
     },
     {
       value: "shift_reason",
       label: "Company - Shift Reason",
       icon: <FileText className="h-4 w-4" />,
+      labelClassName: "text-xs",
     },
     {
       value: "shift_cancelled_candidate",
       label: "Candidate - Shift Cancelled",
       icon: <UserX className="h-4 w-4" />,
+      labelClassName: "text-xs",
     },
     {
       value: "shift_declined",
       label: "Candidate - Shift Declined",
       icon: <Clock className="h-4 w-4" />,
+      labelClassName: "text-xs",
     },
     {
       value: "shift_report_reason",
       label: "Candidate - Shift Report Reason",
       icon: <Flag className="h-4 w-4" />,
+      labelClassName: "text-xs",
     },
   ];
 
