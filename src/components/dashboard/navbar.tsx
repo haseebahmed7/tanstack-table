@@ -4,10 +4,17 @@ import Image from "next/image";
 import Link from "next/link";
 import CurrentTime from "../common/current-time";
 import { useEffect, useRef, useState } from "react";
+import { useUser } from "../context/user-context";
+import { Avatar } from "@/components/settings/components/user-avatar";
+import Cookies from "js-cookie";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const [companyName, setCompanyName] = useState("");
+  const [fullName, setFullName] = useState("");
+
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const { avatarPhotoUrl } = useUser();
 
   // Close when clicking outside
   useEffect(() => {
@@ -26,6 +33,11 @@ export default function Navbar() {
     };
   }, []);
 
+  useEffect(() => {
+    setCompanyName(Cookies.get("companyName") || "");
+    setFullName(Cookies.get("userFirstName") || "");
+  }, []);
+
   const iconClass =
     "flex size-10 cursor-pointer items-center justify-center rounded-full text-gray-500 hover:bg-gray-200";
 
@@ -33,11 +45,13 @@ export default function Navbar() {
     <div className="flex items-center justify-between px-6 h-16 bg-white">
       {/* Left: Title */}
       <div>
-        <div className="flex items-center gap-2 mt-6">
-          <Building2 className="text-red-600 h-5 w-5" />
-          <span className="relative text-2xl font-bold text-gray-900">
-            Internal Company
-          </span>
+        <div className="mt-6 flex items-center gap-2">
+          <Building2 className="text-primary-600 h-5 w-5" />
+          {companyName && (
+            <span className="relative text-2xl font-bold text-gray-900">
+              {companyName}
+            </span>
+          )}
         </div>
         <div className="mt-1 mb-6 text-lg text-[#919EAB]">
           <CurrentTime />
@@ -68,13 +82,7 @@ export default function Navbar() {
             onClick={() => setOpen((prev) => !prev)}
             className={`flex items-center cursor-pointer ${iconClass}`}
           >
-            <Image
-              src="/avatar.jpg"
-              alt="Avatar"
-              width={32}
-              height={32}
-              className="rounded-full"
-            />
+            <Avatar src={avatarPhotoUrl} name={fullName} />
           </button>
 
           {/* Dropdown Menu */}

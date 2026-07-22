@@ -3,7 +3,6 @@
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useGetShiftTypes } from "@/lib/requests/shift-management/api";
 import { useGetGrades } from "@/lib/requests/core-setup/salary-band/api";
 import { useGetLocations } from "@/lib/requests/core-setup/locations/api";
 import {
@@ -12,7 +11,6 @@ import {
 } from "@/lib/requests/core-setup/levels/api";
 import { Location } from "@/lib/requests/core-setup/locations/types";
 import { Grade } from "@/lib/requests/core-setup/salary-band/types";
-import { ShiftType } from "@/lib/requests/shift-management/types";
 import { Form } from "@/components/ui/form";
 import CustomButton from "@/components/ui/custom/custom-button";
 import { Field } from "@/components/hook-form/fields";
@@ -22,6 +20,8 @@ import {
   RateRulePayload,
 } from "@/lib/requests/core-setup/levels/types";
 import { Trash2 } from "lucide-react";
+import { useGetShiftTypes } from "@/lib/requests/core-setup/shift-preferences/api";
+import { ShiftType } from "@/lib/requests/core-setup/shift-preferences/types";
 
 const singleRateRuleSchema = z.object({
   rate: z.number().min(0, "Rate must be a positive number"),
