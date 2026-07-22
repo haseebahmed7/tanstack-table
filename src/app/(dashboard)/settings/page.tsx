@@ -5,6 +5,7 @@ import CoreSetup from "@/components/settings/core-setup";
 import ProfileForm from "@/components/settings/profile-form";
 import { Bell } from "lucide-react";
 import { useState } from "react";
+import ShiftPreferences from "@/components/settings/shift-preferences";
 
 export default function Page() {
   const [activeTab, setActiveTab] = useState("profile");
@@ -30,7 +31,7 @@ export default function Page() {
       value: "shift-preferences",
       label: "Shift Preferences",
       icon: <img src="/settings-shift-icon.png" alt="shift-icon" />,
-      // content: <ShiftPreferences />,
+      content: <ShiftPreferences />,
     },
     {
       value: "compliance",

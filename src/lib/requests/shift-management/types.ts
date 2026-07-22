@@ -1,14 +1,18 @@
-export interface ShiftType {
-  id: number;
-  title: string;
-  startTime: string;
-  endTime: string;
-  breakStartTime?: string;
-  breakDuration: number;
-  isBreakDurationIncludedInCost?: boolean;
+export interface ShiftNotAttended {
+  status: string;
+  shiftId?: number;
 }
 
-export interface ShiftTypeResponse {
-  count: number;
-  results: ShiftType[];
-}
+export type ShiftNotAttendedPayload = ShiftNotAttended;
+
+export type ShiftCancelPayload = {
+  shiftId?: number;
+  cancellationReason: number;
+  cancellationReasonInfo: string;
+};
+
+export type ShiftDeclinePayload = {
+  shiftId: number;
+  declineReason?: number;
+  declineReasonInfo?: string;
+};

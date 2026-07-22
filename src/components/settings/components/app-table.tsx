@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Pencil, Trash2 } from "lucide-react";
 
-type Column = {
+export type Column = {
   header: string;
   accessor: string;
   cell?: (row: any) => React.ReactNode;
@@ -23,9 +23,10 @@ type Column = {
 type AppTableProps = {
   title?: string;
   placeholder?: string;
-  button?: {
-    title: string;
+  button: {
+    title?: string;
     icon?: React.ReactNode;
+    iconOnly?: React.ReactNode;
     onClick: () => void;
   };
   secondaryButton?: {
@@ -84,9 +85,14 @@ export function AppTable({
           )}
 
           {button && (
-            <Button className="h-10 py-2 px-4 text-md" onClick={button.onClick}>
+            <Button
+              onClick={button.onClick}
+              className={cn(
+                button.iconOnly ? "h-9 w-9 p-0" : "h-10 py-2 px-4 text-md",
+              )}
+            >
               {button.icon}
-              {button.title}
+              {!button.iconOnly && button.title}
             </Button>
           )}
         </div>
@@ -100,7 +106,7 @@ export function AppTable({
                 <TableHead
                   key={i}
                   className={cn(
-                    "font-semibold text-gray-900 text-[14px]",
+                    "font-semibold text-gray-900 text-[16px]",
                     col.className,
                   )}
                 >
@@ -137,7 +143,11 @@ export function AppTable({
                     {columns.map((col, colIndex) => (
                       <TableCell
                         key={colIndex}
-                        className={cn(rowClassName, col.className)}
+                        className={cn(
+                          "text-[15px]",
+                          rowClassName,
+                          col.className,
+                        )}
                       >
                         {col.cell ? col.cell(row) : row[col.accessor]}
                       </TableCell>

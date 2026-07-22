@@ -58,8 +58,6 @@ export default function ProfileForm() {
 
   const { mutateAsync: userProfileMut, isPending: IsUserProfileMutLoading } =
     useUpdateUserProfile();
-
-  const [openUploadDialog, setOpenUploadDialog] = useState(false);
   const [photoUrl, setPhotoUrl] = useState<string | undefined>(undefined);
   const { setAvatarPhotoUrl } = useUser();
 

@@ -49,7 +49,7 @@ const formSchema = z.object({
 });
 type LocationForm = z.infer<typeof formSchema>;
 
-const defaultValues: z.infer<typeof formSchema> = {
+const defaultValues: LocationForm = {
   title: "",
   address: "",
   additionalInfo: "",
@@ -74,7 +74,7 @@ export default function AddLocationDialog({
   locationDetail,
   setLocationDetail,
 }: LocationDrawerProps) {
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<LocationForm>({
     resolver: zodResolver(formSchema),
     defaultValues,
   });

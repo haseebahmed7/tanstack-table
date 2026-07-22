@@ -213,7 +213,7 @@ function LevelRow({
                 <div className="w-7" />
               )}
 
-              <span>{level.title}</span>
+              <span className="text-[16px]">{level.title}</span>
             </div>
           </TableCell>
 

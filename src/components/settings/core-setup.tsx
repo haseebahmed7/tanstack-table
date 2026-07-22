@@ -42,8 +42,6 @@ import { AddLevelDialog } from "./components/dialogs/add-level-dialog";
 export default function CoreSetup() {
   const [editLocation, setEditLocation] = useState<Location | null>(null);
   const [editGrade, setEditGrade] = useState<Grade | null>(null);
-  const [editLevel, setEditLevel] = useState<number | null>(null);
-  const [editLevelTitle, setEdiLevelTitle] = useState("");
   const [editRank, setEditRank] = useState<Rank | null>(null);
   const [editReason, setEditReason] = useState<Reason | null>(null);
 

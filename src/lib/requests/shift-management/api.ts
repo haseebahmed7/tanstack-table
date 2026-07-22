@@ -1,9 +1,4 @@
 import { apiRequest } from "@/lib/api-request";
-import { useQuery } from "@tanstack/react-query";
-
-export const useGetShiftTypes = () => {
-  return useQuery({
-    queryKey: ["shift-types"],
-    queryFn: () => apiRequest("get", "/shifts/types/"),
-  });
-};
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ToastService } from "@/lib/toast/toast-service";
+import { getSuccessMessage } from "@/lib/error-handler";
