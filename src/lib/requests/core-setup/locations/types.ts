@@ -53,3 +53,10 @@ export interface PlacePrediction {
   description: string;
   structuredFormat?: { mainText: string; secondaryText: string };
 }
+
+export type LocationOption = {
+  value: string;
+  label: string;
+  chipLabel: string;
+  subLabel?: string;
+};

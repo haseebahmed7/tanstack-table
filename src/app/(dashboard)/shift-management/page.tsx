@@ -1,9 +1,9 @@
-import ShiftManagement from "@/components/dashboard/shift-management-table";
+import ShiftsManagement from "@/components/shifts-management";
 
 export default function Page() {
   return (
     <div>
-      <ShiftManagement />
+      <ShiftsManagement />
     </div>
   );
 }

@@ -15,6 +15,7 @@ export interface Reason {
   message: string;
   type: ReasonType;
 }
+
 export interface ReasonResponse {
   count: number;
   next: string | null;

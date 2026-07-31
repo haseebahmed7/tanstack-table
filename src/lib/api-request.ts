@@ -23,7 +23,7 @@ export const apiRequest = async <T = any>(
       url,
 
       // GET → params
-      params: isGet ? data : undefined,
+      params: isGet ? toSnakeCase(data) : undefined,
 
       // POST/PUT/PATCH → data
       data: !isGet ? toSnakeCase(data) : undefined,

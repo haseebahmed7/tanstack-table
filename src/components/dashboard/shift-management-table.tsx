@@ -56,21 +56,25 @@ import {
   X,
 } from "lucide-react";
 import GenericTabs from "../common/generic-tabs";
+import { useGetShifts } from "@/lib/requests/shift-management/api";
 
 export default function ShiftManagement() {
   const [globalFilter, setGlobalFilter] = useState("");
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-
   const [selectedShift, setSelectedShift] = useState<Shift | null>(null);
   const [isOpen, setIsOpen] = useState(false);
-
-  // initialized with empty array ---
-  const [shifts, setShifts] = useState<Shift[]>([]);
 
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: 10,
   });
+
+  const { data: Shifts, isLoading: isShiftLoading } = useGetShifts(
+    pagination.pageIndex + 1,
+    pagination.pageSize,
+  );
+
+  console.log("Shift Data", Shifts);
 
   const [activeTab, setActiveTab] = useState("all");
   const tabs = [
@@ -89,30 +93,12 @@ export default function ShiftManagement() {
     { value: "not_attended", label: "Not Attended", icon: <UserX size={16} /> },
   ];
 
-  const handleTabChange = (value: string) => {
-    setActiveTab(value);
-    table.getColumn("status")?.setFilterValue(value === "all" ? "" : value);
-  };
+  // const handleTabChange = (value: string) => {
+  //   setActiveTab(value);
+  //   table.getColumn("status")?.setFilterValue(value === "all" ? "" : value);
+  // };
 
-  useEffect(() => {
-    const savedShifts = localStorage.getItem("shifts");
-    if (savedShifts) {
-      const parsed = JSON.parse(savedShifts);
-      parsed.sort((a: Shift, b: Shift) => a.date.localeCompare(b.date));
-      setShifts(parsed);
-    }
-  }, []);
-
-  // useEffect(() => {
-  //   const alreadyReset = localStorage.getItem("reset_done");
-
-  //   if (!alreadyReset) {
-  //     localStorage.removeItem("shifts");
-  //     localStorage.setItem("reset_done", "true");
-  //   }
-  // }, []);
-
-  const data: Shift[] = shifts;
+  const data = Shifts?.results ?? [];
   const columnHelper = createColumnHelper<Shift>();
 
   const columns = useMemo(
@@ -223,24 +209,30 @@ export default function ShiftManagement() {
   const table = useReactTable({
     data,
     columns,
-    state: { globalFilter, columnFilters, pagination },
-    onPaginationChange: setPagination,
-    onGlobalFilterChange: setGlobalFilter,
-    onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
   });
 
-  const hasFilters =
-    table.getState().columnFilters.length > 0 ||
-    !!table.getState().globalFilter;
-  const start = pagination.pageIndex * pagination.pageSize + 1;
-  const end = Math.min(
-    (pagination.pageIndex + 1) * pagination.pageSize,
-    table.getFilteredRowModel().rows.length,
-  );
-  const total = table.getFilteredRowModel().rows.length;
+  // const table = useReactTable({
+  //   data,
+  //   columns,
+  //   state: { globalFilter, columnFilters, pagination },
+  //   onPaginationChange: setPagination,
+  //   onGlobalFilterChange: setGlobalFilter,
+  //   onColumnFiltersChange: setColumnFilters,
+  //   getCoreRowModel: getCoreRowModel(),
+  //   getFilteredRowModel: getFilteredRowModel(),
+  //   getPaginationRowModel: getPaginationRowModel(),
+  // });
+
+  // const hasFilters =
+  //   table.getState().columnFilters.length > 0 ||
+  //   !!table.getState().globalFilter;
+  // const start = pagination.pageIndex * pagination.pageSize + 1;
+  // const end = Math.min(
+  //   (pagination.pageIndex + 1) * pagination.pageSize,
+  //   table.getFilteredRowModel().rows.length,
+  // );
+  // const total = table.getFilteredRowModel().rows.length;
 
   return (
     <>
@@ -251,26 +243,26 @@ export default function ShiftManagement() {
             { name: "Dashboard", href: "/dashboard" },
             { name: "Shifts Management" },
           ]}
-          action={
-            <CreateShiftDialog
-              onCreate={(newShift) => {
-                const updatedShifts = [newShift, ...shifts];
+          // action={
+          //   <CreateShiftDialog
+          //     onCreate={(newShift) => {
+          //       const updatedShifts = [newShift, ...shifts];
 
-                // Direct string comparison (Ascending: 2026-05-20 pehle, 2026-05-24 baad mein)
-                updatedShifts.sort((a, b) => a.date.localeCompare(b.date));
+          //       // Direct string comparison (Ascending: 2026-05-20 pehle, 2026-05-24 baad mein)
+          //       updatedShifts.sort((a, b) => a.date.localeCompare(b.date));
 
-                setShifts(updatedShifts);
-                localStorage.setItem("shifts", JSON.stringify(updatedShifts));
-              }}
-            />
-          }
+          //       setShifts(updatedShifts);
+          //       localStorage.setItem("shifts", JSON.stringify(updatedShifts));
+          //     }}
+          //   />
+          // }
         />
       </div>
 
       <GenericTabs
         tabs={tabs}
         activeTab={activeTab}
-        onChange={handleTabChange}
+        onChange={() => {}}
         statusColors={statusColors}
       />
 
@@ -287,7 +279,7 @@ export default function ShiftManagement() {
               onChange={(e) => setGlobalFilter(e.target.value)}
               className="w-64 border border-green-300 focus-visible:ring-2 focus-visible:ring-green-300"
             />
-            <Input
+            {/* <Input
               type="date"
               value={
                 (table.getColumn("date")?.getFilterValue() as string) ?? ""
@@ -335,8 +327,8 @@ export default function ShiftManagement() {
                   </SelectItem>
                 ))}
               </SelectContent>
-            </Select>
-            <Select
+            </Select> */}
+            {/* <Select
               value={
                 (table.getColumn("level")?.getFilterValue() as string) ?? ""
               }
@@ -366,12 +358,12 @@ export default function ShiftManagement() {
               >
                 Clear Filters
               </Button>
-            )}
+            )} */}
           </div>
         </div>
 
         <div className="overflow-hidden">
-          <Table className="w-full table-fixed">
+          {/* <Table className="w-full table-fixed">
             <TableHeader className="h-12 font-bold bg-[#F4F6F8]">
               {table.getHeaderGroups().map((headergroup) => (
                 <TableRow key={headergroup.id}>
@@ -411,16 +403,16 @@ export default function ShiftManagement() {
                 ))
               )}
             </TableBody>
-          </Table>
+          </Table> */}
 
           <div className="flex items-center justify-between m-3">
-            <div className="text-gray-500">
+            {/* <div className="text-gray-500">
               Showing {start} to {end} of {total}
-            </div>
+            </div> */}
             <div className="flex">
               <Field orientation="horizontal" className="w-fit">
                 <FieldLabel htmlFor="rows">Rows per page</FieldLabel>
-                <Select
+                {/* <Select
                   value={pagination.pageSize.toString()}
                   onValueChange={(value) => table.setPageSize(Number(value))}
                 >
@@ -436,35 +428,35 @@ export default function ShiftManagement() {
                       ))}
                     </SelectGroup>
                   </SelectContent>
-                </Select>
+                </Select> */}
               </Field>
               <Pagination className="mx-0 w-auto">
                 <PaginationContent>
                   <PaginationItem>
-                    <PaginationPrevious
+                    {/* <PaginationPrevious
                       onClick={() => table.previousPage()}
                       className={
                         !table.getCanPreviousPage()
                           ? "opacity-50 pointer-events-none"
                           : ""
                       }
-                    />
+                    /> */}
                   </PaginationItem>
                   <PaginationItem>
-                    <span className="px-3">
+                    {/* <span className="px-3">
                       Page {table.getState().pagination.pageIndex + 1} of{" "}
                       {table.getPageCount()}
-                    </span>
+                    </span> */}
                   </PaginationItem>
                   <PaginationItem>
-                    <PaginationNext
+                    {/* <PaginationNext
                       onClick={() => table.nextPage()}
                       className={
                         !table.getCanNextPage()
                           ? "opacity-50 pointer-events-none"
                           : ""
                       }
-                    />
+                    /> */}
                   </PaginationItem>
                 </PaginationContent>
               </Pagination>
