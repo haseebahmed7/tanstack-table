@@ -76,8 +76,6 @@ export default function Page() {
         activeTab={activeTab}
         onChange={handleTabChange}
       />
-
-      {/* <ProfileForm /> */}
     </div>
   );
 }
